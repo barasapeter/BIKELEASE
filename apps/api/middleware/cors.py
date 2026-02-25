@@ -5,9 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 
 def setup_cors(app: FastAPI) -> None:
-    origins = [
-        "https://bikelease.cardlabs.cloud",
-    ]
+    origins = ["https://bikelease.cardlabs.cloud"]
 
     app.add_middleware(
         CORSMiddleware,

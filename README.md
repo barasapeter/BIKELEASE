@@ -29,7 +29,7 @@ bikelease/
 │  │     └─ error_handlers.py
 │  │
 │  └─ web/                      # thin client
-│     ├─ main.py                # mount   service)
+│     ├─ main.py                # mount   service
 │     ├─ templates/
 │     │  ├─ base.html
 │     │  ├─ dashboard.html

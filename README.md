@@ -100,3 +100,5 @@ bikelease/
 ├─ alembic.ini
 └─ README.md
 ```
+
+Run the app with `uvicorn apps.api.main:app --reload` in development.

@@ -44,17 +44,13 @@ async def create_shop_owner(request: Request, db: Session = Depends(get_db)):
 async def create_employee(
     request: Request,
     db: Session = Depends(get_db),
-    current_user: str = Depends(get_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     try:
-        map_ = {"owner": ShopOwner, "employee": Employee}
-        user = (
-            db.query(map_[current_user["category"]])
-            .filter(map_[current_user["category"]].id == current_user["user_id"])
-            .first()
-        )
-        if not user:
-            raise HTTPException(status_code=404, detail="User no longer exists.")
+        if not isinstance(current_user, ShopOwner):
+            return JSONResponse(
+                status_code=400, content={"detail": "Failed to create employee."}
+            )
 
         payload = await request.json()
         employee: Employee = Employee(
@@ -62,7 +58,7 @@ async def create_employee(
             name=payload["name"],
             username=payload["username"],
             pin_hash=hash_pin(payload["pin"]),
-            metadata={
+            metadata_e={
                 "require_reset_pin": True,
             },
         )

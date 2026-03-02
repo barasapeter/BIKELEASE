@@ -5,9 +5,15 @@ import secrets
 from fastapi import Depends, HTTPException, Request, Response, status
 from jose import jwt, JWTError
 import traceback
+
+from data.db import get_db
 from core.config import GlobalSettings
 
 from passlib.context import CryptContext
+
+from sqlalchemy.orm import Session
+
+from data.models import ShopOwner, Employee, Customer
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -101,7 +107,10 @@ def clear_auth_cookies(response: Response):
     response.delete_cookie(CSRF_COOKIE_NAME)
 
 
-def get_current_user(request: Request) -> dict:
+def get_current_user(
+    request: Request,
+    db: Session = Depends(get_db),
+) -> dict:
     token = request.cookies.get(ACCESS_COOKIE_NAME)
     if not token:
         raise HTTPException(status_code=401, detail="Not authenticated")
@@ -114,8 +123,16 @@ def get_current_user(request: Request) -> dict:
     if not user_id or not category:
         raise HTTPException(status_code=401, detail="Invalid token payload")
 
-    return {"user_id": user_id, "category": category}
+    map_ = {"owner": ShopOwner, "employee": Employee}
+    model = map_.get(category)
+    if model is None:
+        raise HTTPException(status_code=401, detail="Invalid token category")
 
+    user = db.query(model).filter(model.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User no longer exists.")
+
+    return user
 
 
 def csrf_protect(request: Request):

@@ -8,6 +8,7 @@ import traceback
 import httpx
 
 from utils import normalize_and_validate_phone_number_ke
+from core.errors import InvalidPhoneNumberException
 
 
 from core import config
@@ -62,6 +63,15 @@ class MpesaAPI:
         try:
             access_token = await self.get_mpesa_token()
             if access_token["success"]:
+                try:
+                    phone = normalize_and_validate_phone_number_ke(phone)
+                except InvalidPhoneNumberException as e:
+                    return {
+                        "success": False,
+                        "detail": str(e),
+                        "status_code": 400,
+                    }
+
                 password, timestamp = self.generate_password()
 
                 headers = {
@@ -75,9 +85,9 @@ class MpesaAPI:
                     "Timestamp": timestamp,
                     "TransactionType": "CustomerBuyGoodsOnline",
                     "Amount": amount,
-                    "PartyA": normalize_and_validate_phone_number_ke(phone),
+                    "PartyA": phone,
                     "PartyB": 4858770,
-                    "PhoneNumber": normalize_and_validate_phone_number_ke(phone),
+                    "PhoneNumber": phone,
                     "CallBackURL": callback_url,
                     "AccountReference": "UNIQUE_REFERENCE",
                     "TransactionDesc": "Payment for shit",

@@ -21,14 +21,14 @@ router.mount(
 
 @router.get("/")
 async def main():
-    phone_number = "254114068425"
+    phone_number = "2541140684259"
     amount_to_pay = "50"
     response = await mpesa_client.initiate_stk_push(
         phone=phone_number,
         amount=amount_to_pay,
         callback_url="htps://mucra.pythonanywhere.com",
     )
-    return {"initiate": response}
+    return {"initiate": response.get("detail")}
 
 
 @router.get("/hi")

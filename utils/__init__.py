@@ -1,7 +1,6 @@
 import re
 from typing import Optional
-
-INVALID_PHONE_MESSAGE = "The phone number provided is invalid. Please confirm you have provided a valid phone number."
+from core.errors import InvalidPhoneNumberException
 
 
 def normalize_and_validate_phone_number_ke(phone_number: Optional[str]) -> str:
@@ -17,7 +16,7 @@ def normalize_and_validate_phone_number_ke(phone_number: Optional[str]) -> str:
     elif digits.startswith("7"):
         normalized = "254" + digits
     else:
-        raise ValueError(INVALID_PHONE_MESSAGE)
+        raise InvalidPhoneNumberException
 
     is_valid = (
         len(normalized) == 12
@@ -27,7 +26,7 @@ def normalize_and_validate_phone_number_ke(phone_number: Optional[str]) -> str:
     )
 
     if not is_valid:
-        raise ValueError(INVALID_PHONE_MESSAGE)
+        raise InvalidPhoneNumberException
 
     return normalized
 

@@ -60,10 +60,7 @@ bikelease/
 ├─ data/
 │  ├─ db.py                     # enginesession
 │  ├─ models/                   # SQLAlchemy ORM models
-│  │  ├─ bike.py
-│  │  ├─ customer.py
-│  │  ├─ rental.py
-│  │  └─ payment.py
+│  │  ├─ __init__.py
 │  ├─ repositories/             # data access layer
 │  │  ├─ bike_repo.py
 │  │  ├─ customer_repo.py

@@ -4,13 +4,16 @@ import base64
 import json
 import datetime
 import platform
-from settings import settings
 import traceback
 import httpx
 
-from utils import normalize_phone_number
+from utils import normalize_and_validate_phone_number_ke
 
-SYSTEM_SETTINGS = settings.get("system")
+
+from core import config
+
+
+SETTINGS = config.GlobalSettings()
 
 
 class MpesaAPI:
@@ -72,15 +75,13 @@ class MpesaAPI:
                     "Timestamp": timestamp,
                     "TransactionType": "CustomerBuyGoodsOnline",
                     "Amount": amount,
-                    "PartyA": normalize_phone_number(phone),
+                    "PartyA": normalize_and_validate_phone_number_ke(phone),
                     "PartyB": 4858770,
-                    "PhoneNumber": normalize_phone_number(phone),
+                    "PhoneNumber": normalize_and_validate_phone_number_ke(phone),
                     "CallBackURL": callback_url,
                     "AccountReference": "UNIQUE_REFERENCE",
                     "TransactionDesc": "Payment for shit",
                 }
-
-                print("Phone number for STK PUSH::::", normalize_phone_number(phone))
 
                 api_url = "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
 
@@ -113,11 +114,11 @@ class MpesaAPI:
             }
 
 
-async def utils_initiate_stk_push(phone, amount, callback_url):
-    consumer_key = SYSTEM_SETTINGS.C2B_CONSUMER_KEY
-    consumer_secret = SYSTEM_SETTINGS.C2B_CONSUMER_SECRET
-    business_shortcode = SYSTEM_SETTINGS.C2B_SHORTCODE
-    online_passkey = SYSTEM_SETTINGS.C2B_ONLINE_PASSKEY
+async def initiate_stk_push(phone, amount, callback_url):
+    consumer_key = SETTINGS.C2B_CONSUMER_KEY
+    consumer_secret = SETTINGS.C2B_CONSUMER_SECRET
+    business_shortcode = SETTINGS.C2B_SHORTCODE
+    online_passkey = SETTINGS.C2B_ONLINE_PASSKEY
 
     if platform.system() == "Windows":
         callback_url = "https://mucra.pythonanywhere.com/api/mchwapez/callback"
@@ -126,8 +127,6 @@ async def utils_initiate_stk_push(phone, amount, callback_url):
         consumer_key, consumer_secret, business_shortcode, online_passkey
     )
 
-    print("CALLBACK URL FOR STK PUSH:::", callback_url)
-
     response = await mpesa_api.make_stk_push(phone, amount, callback_url)
     return response
 
@@ -135,7 +134,7 @@ async def utils_initiate_stk_push(phone, amount, callback_url):
 if __name__ == "__main__":
     phone_number = "254114068425"
     amount_to_pay = "50"
-    response = utils_initiate_stk_push(
+    response = initiate_stk_push(
         phone_number, amount_to_pay, "htps://mucra.pythonanywhere.com"
     )
     print(response)

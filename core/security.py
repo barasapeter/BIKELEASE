@@ -35,16 +35,17 @@ def _create_token(data: dict, expires_delta: timedelta) -> str:
     return jwt.encode(payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
 
 
-def create_access_token(user_id: str) -> str:
+def create_access_token(user_id: str, category: str) -> str:
     return _create_token(
-        {"sub": user_id, "type": "access"},
+        {"sub": user_id, "cat": category, "type": "access"},
         timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
     )
 
 
-def create_refresh_token(user_id: str) -> str:
+def create_refresh_token(user_id: str, category: str) -> str:
     return _create_token(
-        {"sub": user_id, "type": "refresh"}, timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+        {"sub": user_id, "cat": category, "type": "refresh"},
+        timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS),
     )
 
 
@@ -62,9 +63,9 @@ def verify_token(token: str, token_type: str) -> dict:
         )
 
 
-def set_auth_cookies(response: Response, user_id: str):
-    access_token = create_access_token(user_id)
-    refresh_token = create_refresh_token(user_id)
+def set_auth_cookies(response: Response, user_id: str, category: str):
+    access_token = create_access_token(user_id, category)
+    refresh_token = create_refresh_token(user_id, category)
     csrf_token = secrets.token_urlsafe(32)
 
     response.set_cookie(
@@ -100,25 +101,21 @@ def clear_auth_cookies(response: Response):
     response.delete_cookie(CSRF_COOKIE_NAME)
 
 
-def get_current_user(request: Request) -> str:
+def get_current_user(request: Request) -> dict:
     token = request.cookies.get(ACCESS_COOKIE_NAME)
     if not token:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
     payload = verify_token(token, "access")
-    return payload["sub"]
 
+    user_id = payload.get("sub")
+    category = payload.get("cat")
 
-def get_optional_user(request: Request) -> str | None:
-    token = request.cookies.get("access_token")
-    if not token:
-        return None
+    if not user_id or not category:
+        raise HTTPException(status_code=401, detail="Invalid token payload")
 
-    try:
-        payload = verify_token(token, "access")
-        return payload["sub"]
-    except Exception:
-        return None
+    return {"user_id": user_id, "category": category}
+
 
 
 def csrf_protect(request: Request):

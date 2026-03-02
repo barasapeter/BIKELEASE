@@ -15,4 +15,6 @@ class GlobalSettings(BaseSettings):
     B2C_INITIATOR_NAME: str
     B2C_SECURITY_CREDENTIAL: str
 
+    JWT_SECRET_KEY: str
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")

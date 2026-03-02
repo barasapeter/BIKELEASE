@@ -16,5 +16,6 @@ class GlobalSettings(BaseSettings):
     B2C_SECURITY_CREDENTIAL: str
 
     JWT_SECRET_KEY: str
+    APP_NAME: str
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")

@@ -3,6 +3,8 @@
 *.tfstate.backup
 crash.log
 
+logs/
+
 uploads/
 
 # Byte-compiled / optimized / DLL files

@@ -8,7 +8,16 @@ from apps.api.middleware.cors import setup_cors
 
 
 import apps.web.main as web_main
-from apps.api.routers import auth, customers, bikes, health, payments, rentals, reports
+from apps.api.routers import (
+    auth,
+    customers,
+    bikes,
+    health,
+    payments,
+    rentals,
+    reports,
+    shop,
+)
 
 from data.models import Base
 from data.db import engine
@@ -46,6 +55,7 @@ def create_app() -> FastAPI:
 
     app.include_router(web_main.router, prefix="", tags=["web"])
     app.include_router(auth.router, prefix="/auth/v1", tags=["auth"])
+    app.include_router(shop.router, prefix="/shop/v1", tags=["shop"])
 
     init_db()
 

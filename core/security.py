@@ -7,6 +7,11 @@ from jose import jwt, JWTError
 import traceback
 from core.config import GlobalSettings
 
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
 SETTINGS = GlobalSettings()
 
 
@@ -145,3 +150,11 @@ def refresh_access_token(request: Request, response: Response):
         samesite=COOKIE_SAMESITE,
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
     )
+
+
+def hash_pin(pin: str) -> str:
+    return pwd_context.hash(pin)
+
+
+def verify_pin(plain_pin: str, hashed_pin: str) -> bool:
+    return pwd_context.verify(plain_pin, hashed_pin)

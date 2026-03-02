@@ -29,8 +29,3 @@ async def main():
         callback_url="htps://mucra.pythonanywhere.com",
     )
     return {"initiate": response.get("detail")}
-
-
-@router.get("/hi")
-async def main():
-    return {"greetings": "hi!"}

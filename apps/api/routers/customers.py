@@ -90,7 +90,7 @@ async def create_customer(
         raise HTTPException(status_code=500, detail="Something went wrong.")
 
 
-@router.post("/create-session")
+@router.post("/start-session")
 async def create_session(
     request: Request,
     db: Session = Depends(get_db),
@@ -141,7 +141,48 @@ async def create_session(
         db.commit()
         db.refresh(bike)
         db.refresh(bikesession)
-        return {"detail": "OK"}
+        return {"detail": "Session started successfully."}
+
+    except HTTPException:
+        raise
+    except Exception:
+        logger.error(f"{request.url.path}\n{traceback.format_exc()}\n\n")
+        raise HTTPException(status_code=422, detail="Something went wrong.")
+
+
+@router.patch("/stop-session")
+async def stop_session(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    try:
+        payload = await request.json()
+
+        session_id = payload.get("session_id")
+
+        if not session_id:
+            raise HTTPException(status_code=422, detail="Missing session ID.")
+
+        bikesession = db.query(BikeSession).filter(BikeSession.id == session_id).first()
+        if not bikesession:
+            raise HTTPException(status_code=400, detail="Invalid session ID")
+
+        bike = bikesession.bike
+
+        bikesession.stop_datetime = func.now()
+
+        new_meta = dict(bike.metadata_e or {})
+        del new_meta["leasedto"]
+        new_meta["bikestate"] = "AVAILABLE"
+        bike.metadata_e = new_meta
+
+        db.add(bike)
+        db.add(bikesession)
+        db.commit()
+        db.refresh(bike)
+        db.refresh(bikesession)
+        return {"detail": "Session stopped successfully."}
 
     except HTTPException:
         raise

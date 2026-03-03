@@ -16,3 +16,10 @@ what i have done as of 03/03/2026:
 
 now implement logout and test edge cases.
 
+
+all implemented as of 3/3/36
+
+what i did on 3/3/2026:
+implemented session checkouts.
+
+next: add mpesa callback url and implement mpesa checkout.

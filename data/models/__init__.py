@@ -159,7 +159,7 @@ class Customer(Base):
 class Bike(Base):
     __tablename__ = "bike"
 
-    id: Mapped[str] = mapped_column(String(6), primary_key=True)  # e.g. "012345"
+    id: Mapped[str] = mapped_column(String(7), primary_key=True)  # e.g. "012345"
     nickname: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
 
     rate_per_minute: Mapped[Numeric] = mapped_column(Numeric(10, 2), nullable=False)

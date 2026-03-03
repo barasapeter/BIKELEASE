@@ -30,9 +30,13 @@ logger = logging.getLogger(SETTINGS.APP_NAME)
 async def create_shop_owner(request: Request, db: Session = Depends(get_db)):
     try:
         payload = await request.json()
+        username = payload["username"].strip().lower()
+        exists = db.query(ShopOwner).filter(ShopOwner.username == username).first()
+        if exists:
+            return JSONResponse(status_code=409, content={"detail": "Already exists."})
         shop_owner: ShopOwner = ShopOwner(
             name=payload["name"].strip(),
-            username=payload["username"].strip().lower(),
+            username=username,
             pin_hash=hash_pin(payload["pin"]),
         )
         db.add(shop_owner)
@@ -60,13 +64,20 @@ async def create_employee(
 
         payload = await request.json()
         username = payload["username"].strip().lower()
-        exists = db.query(Employee).filter(Employee.username == username).first()
-        if exists:
+        shop_id = payload["shop_id"]
+        if not db.query(Employee).filter(Employee.username == username).first():
+            return JSONResponse(
+                status_code=404, content={"detail": "Shop does not exist."}
+            )
+        employee_exists = (
+            db.query(Employee).filter(Employee.username == username).first()
+        )
+        if employee_exists:
             return JSONResponse(
                 status_code=409, content={"detail": "Employee already exists."}
             )
         employee: Employee = Employee(
-            shop_id=payload["shop_id"],
+            shop_id=shop_id,
             name=payload["name"],
             username=username,
             pin_hash=hash_pin(payload["pin"]),

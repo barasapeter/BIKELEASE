@@ -80,7 +80,7 @@ async def create_bike(
         db.commit()
         db.refresh(bike)
 
-        return {"detail": "Bike added successfully.", "bike_id": bike.id}
+        return {"detail": "Bike added successfully.", "bike_code": bike.id}
 
     except HTTPException:
         raise

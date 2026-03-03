@@ -86,3 +86,41 @@ async def create_customer(
     except Exception:
         logger.error(f"{request.url.path}\n{traceback.format_exc()}\n\n")
         raise HTTPException(status_code=500, detail="Something went wrong.")
+
+
+@router.post("/create-session")
+async def create_session(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    try:
+        payload = await request.json()
+
+        customer_id = payload.get("customer_id")
+        bike_id = payload.get("bike_id")
+
+        if not customer_id or not bike_id:
+            raise HTTPException(status_code=422, detail="Missing required fields.")
+
+        customer = db.query(Customer).filter(Customer.id == customer_id).first()
+        if not customer:
+            raise HTTPException(status_code=404, detail="Customer does not exist")
+        bike = db.query(Bike).filter(Bike.id == bike_id).first()
+        if not bike:
+            raise HTTPException(status_code=404, detail="Bike does not exist")
+
+        bikestate = bike.metadata_e.get("bikestate", "STATE_UNDEFINED")
+        if bikestate != "AVAILABLE":
+            raise HTTPException(
+                status_code=409,
+                detail=f"{bike.nickname}, {bike.id} {bikestate}",
+            )
+
+        return {"detail": "OK"}
+
+    except HTTPException:
+        raise
+    except Exception:
+        logger.error(f"{request.url.path}\n{traceback.format_exc()}\n\n")
+        raise HTTPException(status_code=422, detail="Something went wrong.")

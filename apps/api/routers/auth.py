@@ -53,7 +53,12 @@ async def create_employee(
             )
 
         payload = await request.json()
-        usernme = payload["username"].strip().lower()
+        username = payload["username"].strip().lower()
+        exists = db.query(Employee).filter(Employee.username == username).first()
+        if exists:
+            return JSONResponse(
+                status_code=409, content={"detail": "Employee already exists."}
+            )
         employee: Employee = Employee(
             shop_id=payload["shop_id"],
             name=payload["name"],

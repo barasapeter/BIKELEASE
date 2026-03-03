@@ -219,9 +219,10 @@ async def checkout_session(
 
         session_id = payload.get("session_id")
         payment_method = payload.get("payment_method")
+        commit = payload.get("commit")
         phone = payload.get("phone")
 
-        if not session_id or not payment_method in ["CASH", "MPESA"]:
+        if not session_id or commit is None or not payment_method in ["CASH", "MPESA"]:
             raise HTTPException(status_code=422, detail="Missing or invalid fields.")
 
         bikesession = db.query(BikeSession).filter(BikeSession.id == session_id).first()
@@ -301,7 +302,7 @@ async def checkout_session(
                 origin += f":{url.port}"
 
             stk_initiate = await client.initiate_stk_push(
-                phone, amount=int(amount), callback_url=f"{origin}/mpesa-endpoint"
+                phone, amount=round(amount), callback_url=f"{origin}/mpesa-endpoint"
             )
             if stk_initiate["success"]:
                 response_description = stk_initiate["detail"]["ResponseDescription"]
@@ -334,23 +335,27 @@ async def checkout_session(
             session_checkout = SessionCheckout(
                 session_id=bikesession.id,
                 payment_method_enum=payment_method,
-                amount_paid=0 if payment_method == PaymentMethod.MPESA else int(amount),
+                amount_paid=(
+                    0 if payment_method == PaymentMethod.MPESA else round(amount)
+                ),
                 duration_in_minutes=duration,
                 metadata_e={"precise_amount": amount},
             )
-            db.add(session_checkout)
-            db.commit()
-            db.refresh(session_checkout)
+            if payment_method == PaymentMethod.MPESA or commit:
+                db.add(session_checkout)
+                db.commit()
+                db.refresh(session_checkout)
 
             # for initial request
             if payment_method == PaymentMethod.MPESA:
                 return await process_push_request(phone)
 
             return {
-                "detail": "Cash payment confirmed.",
+                "detail": f"Cash payment{" " if commit else " not "}confirmed.",
                 "payment": payment_method,
                 "duration": duration,
-                "amount": amount,
+                "amount": round(amount),
+                "precise": amount,
             }
 
         # for subsequent request

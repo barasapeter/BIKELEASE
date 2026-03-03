@@ -41,9 +41,6 @@ class ShopOwner(Base):
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
-    uuid: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), unique=True, default=uuid.uuid4
-    )
 
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     username: Mapped[str] = mapped_column(String(80), nullable=False, unique=True)
@@ -71,9 +68,6 @@ class Shop(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
-    uuid: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), unique=True, default=uuid.uuid4
     )
 
     name: Mapped[str] = mapped_column(String(200), nullable=False)
@@ -111,9 +105,6 @@ class Employee(Base):
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
-    uuid: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), unique=True, default=uuid.uuid4
-    )
 
     shop_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("shop.id", ondelete="CASCADE"), nullable=False
@@ -143,9 +134,6 @@ class Customer(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
-    uuid: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), unique=True, default=uuid.uuid4
     )
 
     name: Mapped[str] = mapped_column(String(200), nullable=False)
@@ -201,9 +189,6 @@ class Session(Base):
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
-    uuid: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), unique=True, default=uuid.uuid4
-    )
 
     customer_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
@@ -249,9 +234,6 @@ class SessionCheckout(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
-    uuid: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), unique=True, default=uuid.uuid4
     )
 
     session_id: Mapped[uuid.UUID] = mapped_column(

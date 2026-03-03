@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends, Request, HTTPException
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 
 
 from data.db import get_db
-from data.models import ShopOwner, Employee, Customer, Shop
+from data.models import ShopOwner, Shop
 from core import config
-from core.security import hash_pin, verify_pin, get_current_user
+from core.security import get_current_user
 
 
 from sqlalchemy.orm import Session

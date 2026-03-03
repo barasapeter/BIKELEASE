@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, Request, HTTPException
+from fastapi.responses import JSONResponse
 
 
 from data.db import get_db
@@ -136,7 +137,7 @@ async def create_session(
             db.query(BikeSession).filter(BikeSession.customer_id == customer.id).first()
         )
         if bikesession and bike.metadata_e.get("leasedto") == customer_id:
-            raise HTTPException(status_code=419, detail="Bike already leased.")
+            raise HTTPException(status_code=409, detail="Bike already leased.")
 
         bikesession: BikeSession = BikeSession(
             customer_id=customer.id,
@@ -182,7 +183,7 @@ async def stop_session(
             raise HTTPException(status_code=400, detail="Invalid session ID")
 
         if bikesession.stop_datetime:
-            raise HTTPException(status_code=419, detail="Session was already stopped.")
+            raise HTTPException(status_code=409, detail="Session was already stopped.")
 
         bike = bikesession.bike
 
@@ -227,6 +228,12 @@ async def checkout_session(
         if not bikesession:
             raise HTTPException(status_code=400, detail="Invalid session ID")
 
+        if not bikesession.stop_datetime:
+            raise HTTPException(
+                status_code=400,
+                detail="Tis is an ongoing session. You need to stop it first.",
+            )
+
         start = bikesession.start_datetime
         stop = bikesession.stop_datetime
 
@@ -237,8 +244,17 @@ async def checkout_session(
 
         session_checkout = bikesession.checkout
 
+        if session_checkout and session_checkout.amount_paid:
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "detail": f"Session was checked out successfully with {session_checkout.payment_method_enum}."
+                },
+            )
+
         async def process_push_request(phone):
-            exists = (
+
+            pending = (
                 db.query(MpesaCheckout)
                 .filter(
                     MpesaCheckout.session_checkout_id == session_checkout.id,
@@ -247,10 +263,27 @@ async def checkout_session(
                 )
                 .first()
             )
-            if exists:
+            if pending:
                 raise HTTPException(
-                    status_code=419,
+                    status_code=409,
                     detail="A push request is ongoing. Please wait until it completes first.",
+                )
+
+            success = (
+                db.query(MpesaCheckout)
+                .filter(
+                    MpesaCheckout.session_checkout_id == session_checkout.id,
+                    MpesaCheckout.transaction_status_enum
+                    == MpesaTransactionStatus.SUCCESS,
+                )
+                .first()
+            )
+            if success:
+                return JSONResponse(
+                    status_code=200,
+                    content={
+                        "detail": "Session was checked out successfully via MPESA."
+                    },
                 )
 
             if not phone:
@@ -325,7 +358,7 @@ async def checkout_session(
             return await process_push_request(phone)
 
         return {
-            "detail": f"{session_checkout.payment_method_enum} checkout was already created.",
+            "detail": f"{session_checkout.payment_method_enum} checkout was already created.{f" Status: "+ session_checkout.mpesa.transaction_status_enum if session_checkout.mpesa else " PAID IN CASH"}",
             "duration": duration,
             "amount": amount,
         }

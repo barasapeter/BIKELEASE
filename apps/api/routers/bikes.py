@@ -31,13 +31,33 @@ async def create_bike(
     try:
         payload = await request.json()
 
-        bike_id = payload.get("id")
+        bike_id = payload.get("bike_id")
         nickname = (payload.get("nickname") or "").strip()
         rpm_raw = payload.get("rpm")
         shop_id = payload.get("shop_id")
 
-        if not bike_id or not nickname or shop_id is None or rpm_raw is None:
-            raise HTTPException(status_code=422, detail="Missing required fields.")
+        missing_fields = []
+
+        if not bike_id:
+            missing_fields.append("id")
+
+        if not nickname:
+            missing_fields.append("nickname")
+
+        if shop_id is None:
+            missing_fields.append("shop_id")
+
+        if rpm_raw is None:
+            missing_fields.append("rpm")
+
+        if missing_fields:
+            raise HTTPException(
+                status_code=422,
+                detail={
+                    "message": "Missing required fields.",
+                    "missing_fields": missing_fields,
+                },
+            )
 
         try:
             rate_per_minute = int(rpm_raw)

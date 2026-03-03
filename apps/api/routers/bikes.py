@@ -1,16 +1,11 @@
-from fastapi import APIRouter, Depends, Request, Response, status, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Depends, Request, HTTPException
 
 
 from data.db import get_db
 from data.models import ShopOwner, Employee, Bike, Shop
 from core import config
 from core.security import (
-    hash_pin,
-    verify_pin,
-    set_auth_cookies,
     get_current_user,
-    clear_auth_cookies,
 )
 
 

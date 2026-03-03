@@ -25,8 +25,8 @@ async def create_shop_owner(request: Request, db: Session = Depends(get_db)):
     try:
         payload = await request.json()
         shop_owner: ShopOwner = ShopOwner(
-            name=payload["name"],
-            username=payload["username"],
+            name=payload["name"].strip(),
+            username=payload["username"].strip().lower(),
             pin_hash=hash_pin(payload["pin"]),
         )
         db.add(shop_owner)
@@ -53,10 +53,11 @@ async def create_employee(
             )
 
         payload = await request.json()
+        usernme = payload["username"].strip().lower()
         employee: Employee = Employee(
             shop_id=payload["shop_id"],
             name=payload["name"],
-            username=payload["username"],
+            username=username,
             pin_hash=hash_pin(payload["pin"]),
             metadata_e={
                 "require_reset_pin": True,
@@ -77,7 +78,7 @@ async def create_employee(
 async def create_employee(request: Request, db: Session = Depends(get_db)):
     try:
         payload = await request.json()
-        username = payload["username"]
+        username = payload["username"].strip().lower()
         pin = payload["pin"]
         category = payload["category"]
 

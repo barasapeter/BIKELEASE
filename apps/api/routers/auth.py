@@ -11,7 +11,6 @@ from core.security import (
     set_auth_cookies,
     get_current_user,
     clear_auth_cookies,
-    csrf_protect,
 )
 
 

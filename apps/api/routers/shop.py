@@ -34,10 +34,14 @@ async def create_shop_owner(
             )
 
         payload = await request.json()
-        exists = db.query(Shop).filter(
-            Shop.owner_id == current_user.id,
-            Shop.name == payload["name"].strip(),
-            Shop.metadata_e == {"location": payload["location"].strip()},
+        exists = (
+            db.query(Shop)
+            .filter(
+                Shop.owner_id == current_user.id,
+                Shop.name == payload["name"].strip(),
+                Shop.metadata_e == {"location": payload["location"].strip()},
+            )
+            .first()
         )
         if exists:
             return JSONResponse(

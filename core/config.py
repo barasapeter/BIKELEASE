@@ -18,4 +18,6 @@ class GlobalSettings(BaseSettings):
     JWT_SECRET_KEY: str
     APP_NAME: str
 
+    TEST_DATABASE_URL: str
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")

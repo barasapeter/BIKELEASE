@@ -2,8 +2,18 @@ from fastapi import APIRouter, Depends, Request, HTTPException
 
 
 from data.db import get_db
-from data.models import ShopOwner, Employee, Bike, Customer
+from data.models import (
+    ShopOwner,
+    Employee,
+    Bike,
+    Customer,
+    SessionCheckout,
+    MpesaCheckout,
+)
 from data.models import Session as BikeSession
+
+from data.models import PaymentMethod, MpesaTransactionStatus
+
 from core import config
 from core.security import (
     get_current_user,
@@ -12,11 +22,14 @@ from core.security import (
 from utils import normalize_and_validate_phone_number_ke
 from core.errors import InvalidPhoneNumberException
 
+from integrations.mpesa import client
+
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
 import logging
 import traceback
+from datetime import datetime, timezone
 
 
 router = APIRouter()
@@ -168,6 +181,9 @@ async def stop_session(
         if not bikesession:
             raise HTTPException(status_code=400, detail="Invalid session ID")
 
+        if bikesession.stop_datetime:
+            raise HTTPException(status_code=419, detail="Session was already stopped.")
+
         bike = bikesession.bike
 
         bikesession.stop_datetime = func.now()
@@ -183,6 +199,136 @@ async def stop_session(
         db.refresh(bike)
         db.refresh(bikesession)
         return {"detail": "Session stopped successfully."}
+
+    except HTTPException:
+        raise
+    except Exception:
+        logger.error(f"{request.url.path}\n{traceback.format_exc()}\n\n")
+        raise HTTPException(status_code=422, detail="Something went wrong.")
+
+
+@router.post("/checkout-session")
+async def checkout_session(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    try:
+        payload = await request.json()
+
+        session_id = payload.get("session_id")
+        payment_method = payload.get("payment_method")
+        phone = payload.get("phone")
+
+        if not session_id or not payment_method in ["CASH", "MPESA"]:
+            raise HTTPException(status_code=422, detail="Missing or invalid fields.")
+
+        bikesession = db.query(BikeSession).filter(BikeSession.id == session_id).first()
+        if not bikesession:
+            raise HTTPException(status_code=400, detail="Invalid session ID")
+
+        start = bikesession.start_datetime
+        stop = bikesession.stop_datetime
+
+        duration = (stop - start).total_seconds() / 60  # minutes as float
+        duration = max(0, duration)  # avoid negatives if clocks/data are weird
+
+        amount = duration * bikesession.rpm_on_allocate
+
+        session_checkout = bikesession.checkout
+
+        async def process_push_request(phone):
+            exists = (
+                db.query(MpesaCheckout)
+                .filter(
+                    MpesaCheckout.session_checkout_id == session_checkout.id,
+                    MpesaCheckout.transaction_status_enum
+                    == MpesaTransactionStatus.PENDING,
+                )
+                .first()
+            )
+            if exists:
+                raise HTTPException(
+                    status_code=419,
+                    detail="A push request is ongoing. Please wait until it completes first.",
+                )
+
+            if not phone:
+                phone = session_checkout.session.customer.primary_phone
+                if not phone:
+                    raise HTTPException(
+                        status_code=400, detail="Phone number required."
+                    )
+            else:
+                phone = normalize_and_validate_phone_number_ke(phone)
+
+            url = request.url
+            origin = f"{url.scheme}://{url.hostname}"
+            if url.port:
+                origin += f":{url.port}"
+
+            stk_initiate = await client.initiate_stk_push(
+                phone, amount=int(amount), callback_url=f"{origin}/mpesa-endpoint"
+            )
+            if stk_initiate["success"]:
+                response_description = stk_initiate["detail"]["ResponseDescription"]
+                mpesa_checkout_request_id = stk_initiate["detail"]["CheckoutRequestID"]
+
+                mpesa_checkout = MpesaCheckout(
+                    session_checkout_id=session_checkout.id,
+                    customer_MSISDN=phone,
+                    mpesa_checkout_request_id=mpesa_checkout_request_id,
+                    transaction_status_enum=MpesaTransactionStatus.PENDING,
+                )
+                db.add(mpesa_checkout)
+                db.commit()
+                db.refresh(mpesa_checkout)
+
+                return {
+                    "detail": f"Toolkit Prompt sent to {phone}. {response_description}",
+                    "payment": payment_method,
+                    "duration": duration,
+                    "amount": amount,
+                }
+            else:
+                error = stk_initiate["detail"].get("errorMessage")
+                raise HTTPException(status_code=422, detail=error)
+
+        if not session_checkout:
+            payment_mapping = {"CASH": PaymentMethod.CASH, "MPESA": PaymentMethod.MPESA}
+            payment_method = payment_mapping[payment_method]
+
+            session_checkout = SessionCheckout(
+                session_id=bikesession.id,
+                payment_method_enum=payment_method,
+                amount_paid=0 if payment_method == PaymentMethod.MPESA else int(amount),
+                duration_in_minutes=duration,
+                metadata_e={"precise_amount": amount},
+            )
+            db.add(session_checkout)
+            db.commit()
+            db.refresh(session_checkout)
+
+            # for initial request
+            if payment_method == PaymentMethod.MPESA:
+                return await process_push_request(phone)
+
+            return {
+                "detail": "Cash payment confirmed.",
+                "payment": payment_method,
+                "duration": duration,
+                "amount": amount,
+            }
+
+        # for subsequent request
+        if payment_method == PaymentMethod.MPESA:
+            return await process_push_request(phone)
+
+        return {
+            "detail": f"{session_checkout.payment_method_enum} checkout was already created.",
+            "duration": duration,
+            "amount": amount,
+        }
 
     except HTTPException:
         raise

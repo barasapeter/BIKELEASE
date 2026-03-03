@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, Request, HTTPException
 
 from data.db import get_db
 from data.models import ShopOwner, Employee, Bike, Customer
+from data.models import Session as BikeSession
 from core import config
 from core.security import (
     get_current_user,
@@ -12,6 +13,7 @@ from utils import normalize_and_validate_phone_number_ke
 from core.errors import InvalidPhoneNumberException
 
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 import logging
 import traceback
@@ -114,9 +116,31 @@ async def create_session(
         if bikestate != "AVAILABLE":
             raise HTTPException(
                 status_code=409,
-                detail=f"{bike.nickname}, {bike.id} {bikestate}",
+                detail=f"{bike.nickname}, {bike.id} is unavailable: {bikestate}",
             )
 
+        bikesession = (
+            db.query(BikeSession).filter(BikeSession.customer_id == customer.id).first()
+        )
+        if bikesession and bike.metadata_e.get("leasedto") == customer_id:
+            raise HTTPException(status_code=419, detail="Bike already leased.")
+
+        bikesession: BikeSession = BikeSession(
+            customer_id=customer.id,
+            bike_id=bike.id,
+            rpm_on_allocate=bike.rate_per_minute,
+            start_datetime=func.now(),
+        )
+        new_meta = dict(bike.metadata_e or {})
+        new_meta["leasedto"] = customer_id
+        new_meta["bikestate"] = "LEASED"
+        bike.metadata_e = new_meta
+
+        db.add(bike)
+        db.add(bikesession)
+        db.commit()
+        db.refresh(bike)
+        db.refresh(bikesession)
         return {"detail": "OK"}
 
     except HTTPException:

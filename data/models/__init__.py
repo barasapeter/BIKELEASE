@@ -196,7 +196,7 @@ class Session(Base):
         nullable=False,
     )
     bike_id: Mapped[str] = mapped_column(
-        String(6), ForeignKey("bike.id", ondelete="RESTRICT"), nullable=False
+        String(7), ForeignKey("bike.id", ondelete="RESTRICT"), nullable=False
     )
 
     rpm_on_allocate: Mapped[int] = mapped_column(Integer, nullable=False)

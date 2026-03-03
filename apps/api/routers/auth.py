@@ -1,11 +1,18 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, Response, status
 from fastapi.responses import JSONResponse
 
 
 from data.db import get_db
 from data.models import ShopOwner, Employee
 from core import config
-from core.security import hash_pin, verify_pin, set_auth_cookies, get_current_user
+from core.security import (
+    hash_pin,
+    verify_pin,
+    set_auth_cookies,
+    get_current_user,
+    clear_auth_cookies,
+    csrf_protect,
+)
 
 
 from sqlalchemy.orm import Session
@@ -107,3 +114,12 @@ async def create_employee(request: Request, db: Session = Depends(get_db)):
         return JSONResponse(
             status_code=422, content={"detail": "Something went wrong."}
         )
+
+
+@router.post("/logout", status_code=status.HTTP_200_OK)
+def logout(
+    response: Response,
+    user=Depends(get_current_user),
+):
+    clear_auth_cookies(response)
+    return {"detail": "Successfully logged out"}

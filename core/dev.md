@@ -6,4 +6,13 @@ Run `pytest -q` to test the app.
 - api versioning
 - logging
 
-done. on 01/03/2026, I created database schema, and authentication. next: create employee and test.
+done. on 02/03/2026, I created database schema, and authentication. next: create employee and test.
+
+what i have done as of 03/03/2026:
+- created shop owner
+- create employee
+- implemented login (authentication)
+- created shop
+
+now implement logout and test edge cases.
+

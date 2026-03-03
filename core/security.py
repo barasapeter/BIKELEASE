@@ -110,7 +110,7 @@ def clear_auth_cookies(response: Response):
 def get_current_user(
     request: Request,
     db: Session = Depends(get_db),
-) -> dict:
+):
     token = request.cookies.get(ACCESS_COOKIE_NAME)
     if not token:
         raise HTTPException(status_code=401, detail="Not authenticated")

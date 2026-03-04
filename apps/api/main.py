@@ -58,6 +58,7 @@ def create_app() -> FastAPI:
     app.include_router(shop.router, prefix="/shop/v1", tags=["shop"])
     app.include_router(bikes.router, prefix="/bikes/v1", tags=["bikes"])
     app.include_router(customers.router, prefix="/customers/v1", tags=["customers"])
+    app.include_router(payments.router, prefix="/payments/v1", tags=["payments"])
 
     init_db()
 

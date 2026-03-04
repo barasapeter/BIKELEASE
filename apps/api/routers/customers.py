@@ -321,7 +321,7 @@ async def checkout_session(
                 db.refresh(mpesa_checkout)
 
                 return {
-                    "detail": f"Toolkit Prompt sent to {phone}. {response_description}",
+                    "detail": f"Toolkit Prompt of KES{round(amount)} sent to {phone}. {response_description}",
                     "payment": payment_method,
                     "duration": duration,
                     "amount": amount,

@@ -102,8 +102,8 @@ async def webhook_processor(
                 "merchant_request_id": merchant_request_id,
             }
             session_checkout.metadata_e = session_checkout_metadata
-
-        mpesa_checkout.transaction_status_enum = MpesaTransactionStatus.FAILED
+        else:
+            mpesa_checkout.transaction_status_enum = MpesaTransactionStatus.FAILED
 
         db.add(mpesa_checkout)
         db.add(session_checkout)

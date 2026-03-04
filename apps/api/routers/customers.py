@@ -64,9 +64,11 @@ async def create_customer(
             previous_sessions = [
                 {
                     "bike": f"{s.bike.nickname}, {s.bike.id}",
-                    "duration_in_minutes": s.checkout.duration_in_minutes,
-                    "amount_paid": s.checkout.amount_paid,
-                    "datetime": s.start_datetime,
+                    "duration_in_minutes": (
+                        s.checkout.duration_in_minutes if s.checkout else "ongoing"
+                    ),
+                    "amount_paid": s.checkout.amount_paid if s.checkout else 0,
+                    "datetime": s.start_datetime if s.checkout else None,
                 }
                 for s in customer.sessions
             ]
@@ -74,8 +76,8 @@ async def create_customer(
                 "detail": f"Customer exists",
                 "id": customer.id,
                 "name": customer.name,
-                "loyalty_points": "Not Computed",
-                "previous_sessions": previous_sessions,
+                "points": "Not Computed",
+                "sessions": previous_sessions,
                 "registration": {
                     "datetime": customer.datetime_registered,
                     "attendant": dict(customer.metadata_e).get("attendant"),

@@ -27,7 +27,7 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
       </span>
     </button>
-    <a href="#login" class="btn-login">Log In →</a>
+    <a href="/login" class="btn-login">Log In →</a>
   </div>
 </nav>
 
@@ -48,7 +48,7 @@
       Payment by <strong>cash or M-Pesa STK Push</strong>, calculated to the minute.
     </p>
     <div class="hero-actions reveal d4">
-      <a href="#login" class="btn-primary">Get Started Free</a>
+      <a href="/login" class="btn-primary">Get Started Free</a>
       <a href="#how" class="btn-secondary">See How It Works</a>
     </div>
     <div class="hero-stats reveal d5">
@@ -342,44 +342,6 @@
   <div class="footer-copy">© 2026 BikeLease · Built for Small Bike Businesses · Kenya</div>
 </footer>
 
-<script>
-  // Theme toggle
-  const themeBtn = document.getElementById('themeBtn');
-  const html = document.documentElement;
-  themeBtn.addEventListener('click', () => {
-    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    html.setAttribute('data-theme', next);
-    themeBtn.querySelector('.icon-moon').style.display = next === 'dark' ? 'flex' : 'none';
-    themeBtn.querySelector('.icon-sun').style.display  = next === 'light' ? 'flex' : 'none';
-  });
-
-  // Live timer
-  let secs = 42 * 60 + 17;
-  const rpm = 5.0;
-  const clockEl  = document.getElementById('clockDisplay');
-  const amountEl = document.getElementById('amountDue');
-  setInterval(() => {
-    secs++;
-    const m = String(Math.floor(secs / 60)).padStart(2, '0');
-    const s = String(secs % 60).padStart(2, '0');
-    if (clockEl)  clockEl.innerHTML = `${m}<span>:</span>${s}`;
-    if (amountEl) amountEl.textContent = `KES ${((secs / 60) * rpm).toFixed(2)}`;
-  }, 1000);
-
-  // Scroll reveal
-  const obs = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.style.opacity = '0';
-        e.target.style.animation = 'fadeUp 0.65s ease forwards';
-        obs.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.1 });
-  document.querySelectorAll('.step, .feat, .pay-card, .ussd-point').forEach(el => {
-    el.style.opacity = '0';
-    obs.observe(el);
-  });
-</script>
+<script src="/static/js/lander.js"></script>
 </body>
 </html>

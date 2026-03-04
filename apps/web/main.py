@@ -23,3 +23,9 @@ async def main(request: Request):
 async def main(request: Request):
     context = {"request": request}
     return templates.TemplateResponse("palette.html", context)
+
+
+@router.get("/login")
+async def main(request: Request):
+    context = {"request": request}
+    return templates.TemplateResponse("login.html", context)

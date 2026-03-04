@@ -1,10 +1,13 @@
 import logging
 import os
 
+from pathlib import Path
+
 from fastapi import FastAPI
 
 
 from apps.api.middleware.cors import setup_cors
+from fastapi.staticfiles import StaticFiles
 
 
 import apps.web.main as web_main
@@ -24,6 +27,10 @@ from data.db import engine
 from core import config
 
 SETTINGS = config.GlobalSettings()
+BASE_DIR = Path(__file__).resolve().parent
+
+WEB_DIR = BASE_DIR.parent / "web"
+STATIC_DIR = WEB_DIR / "static"
 
 os.makedirs("logs", exist_ok=True)
 
@@ -50,6 +57,7 @@ def create_app() -> FastAPI:
         redoc_url=None,
         openapi_url=None,
     )
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
     setup_cors(app)
 
@@ -63,7 +71,6 @@ def create_app() -> FastAPI:
     init_db()
 
     return app
-
 
 
 app = create_app()

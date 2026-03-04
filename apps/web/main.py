@@ -1,31 +1,25 @@
 from pathlib import Path
 
-
-from fastapi import APIRouter
-from fastapi.staticfiles import StaticFiles
+from fastapi import APIRouter, Request
+from fastapi.templating import Jinja2Templates
 
 from core import config
-from integrations.mpesa import client as mpesa_client
 
 router = APIRouter()
 
 BASE_DIR = Path(__file__).resolve().parent
 SETTINGS = config.GlobalSettings()
 
-router.mount(
-    "/static",
-    StaticFiles(directory=BASE_DIR / "static"),
-    name="static",
-)
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 
 @router.get("/")
-async def main():
-    phone_number = "254114068425"
-    amount_to_pay = "50"
-    response = await mpesa_client.initiate_stk_push(
-        phone=phone_number,
-        amount=amount_to_pay,
-        callback_url="htps://mucra.pythonanywhere.com",
-    )
-    return {"initiate": response.get("detail")}
+async def main(request: Request):
+    context = {"request": request}
+    return templates.TemplateResponse("lander.html", context)
+
+
+@router.get("/palette")
+async def main(request: Request):
+    context = {"request": request}
+    return templates.TemplateResponse("palette.html", context)

@@ -1,161 +1,174 @@
-const themeBtn = document.getElementById('themeBtn');
-const html = document.documentElement;
+(() => {
+  const API_URL = "/auth/v1/login";
+  const DASHBOARD_URL = "/dashboard";
 
-let savedTheme = localStorage.getItem('theme');
-if (!savedTheme) {
-  savedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-}
-html.setAttribute('data-theme', savedTheme);
-updateIcons(savedTheme);
+  const usernameEl = document.getElementById("username");
+  const pinEl = document.getElementById("pin");
+  const btn = document.getElementById("loginBtn");
 
-themeBtn.addEventListener('click', () => {
-  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-  html.setAttribute('data-theme', next);
-  localStorage.setItem('theme', next);
-  updateIcons(next);
-});
+  // Default category (per your comment). Change to "employee" if needed.
+  const DEFAULT_CATEGORY = "owner";
 
-function updateIcons(theme) {
-  themeBtn.querySelector('.icon-moon').style.display = theme === 'dark' ? 'flex' : 'none';
-  themeBtn.querySelector('.icon-sun').style.display = theme === 'light' ? 'flex' : 'none';
-}
+  // ---- Flash message UI (JS-only) ----
+  function ensureFlashHost() {
+    let host = document.getElementById("flashHost");
+    if (host) return host;
 
-const pwdInput = document.getElementById('password');
-const pwdToggle = document.getElementById('pwdToggle');
-const eyeIcon = document.getElementById('eyeIcon');
-const eyeOpen = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
-const eyeClosed = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
-let shown = false;
-
-pwdToggle.addEventListener('click', () => {
-  shown = !shown;
-  pwdInput.type = shown ? 'text' : 'password';
-  eyeIcon.innerHTML = shown ? eyeClosed : eyeOpen;
-});
-
-document.getElementById('remember').addEventListener('change', function () {});
-
-const form = document.getElementById('loginForm');
-const submitBtn = document.getElementById('submitBtn');
-const toast = document.getElementById('toast');
-
-function setLoading(on) {
-  submitBtn.classList.toggle('loading', !!on);
-  submitBtn.disabled = !!on;
-}
-
-function setToast(text, show) {
-  if (!toast) return;
-  if (typeof text === 'string') toast.textContent = text;
-  toast.classList.toggle('show', !!show);
-}
-
-function setFieldError(fieldId, on) {
-  const el = document.getElementById(fieldId);
-  if (!el) return;
-  el.classList.toggle('error', !!on);
-}
-
-function normalizeCategory(v) {
-  const x = (v || '').trim().toLowerCase();
-  if (x === 'owner' || x === 'employee') return x;
-  return '';
-}
-
-function resolveCategory() {
-  const params = new URLSearchParams(window.location.search);
-  const fromQuery = normalizeCategory(params.get('category'));
-  if (fromQuery) return fromQuery;
-  const fromData = normalizeCategory(html.getAttribute('data-category'));
-  if (fromData) return fromData;
-  return 'owner';
-}
-
-function nextUrl() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get('next') || '/dashboard';
-}
-
-function persistRemember(remember, username, category) {
-  const key = 'auth_last_login';
-  const value = JSON.stringify({ username, category, ts: Date.now() });
-  if (remember) {
-    localStorage.setItem(key, value);
-    sessionStorage.removeItem(key);
-  } else {
-    sessionStorage.setItem(key, value);
-    localStorage.removeItem(key);
+    host = document.createElement("div");
+    host.id = "flashHost";
+    host.setAttribute(
+      "style",
+      [
+        "position: fixed",
+        "top: 18px",
+        "right: 18px",
+        "z-index: 9999",
+        "display: flex",
+        "flex-direction: column",
+        "gap: 10px",
+        "max-width: min(420px, calc(100vw - 36px))",
+      ].join(";")
+    );
+    document.body.appendChild(host);
+    return host;
   }
-}
 
-async function loginRequest(username, pin, category) {
-  const res = await fetch('/auth/v1/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ username, pin, category })
-  });
+  function flash(message, type = "info") {
+    const host = ensureFlashHost();
 
-  let data = null;
-  try {
-    data = await res.json();
-  } catch (_) {}
+    const el = document.createElement("div");
+    const bg =
+      type === "success"
+        ? "#0ea5e9"
+        : type === "error"
+        ? "#ef4444"
+        : "#111827";
 
-  return { res, data };
-}
+    el.setAttribute(
+      "style",
+      [
+        `background: ${bg}`,
+        "color: #fff",
+        "padding: 12px 14px",
+        "border-radius: 12px",
+        "box-shadow: 0 10px 25px rgba(0,0,0,.18)",
+        "font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif",
+        "font-size: 14px",
+        "line-height: 1.35",
+        "opacity: 0",
+        "transform: translateY(-6px)",
+        "transition: opacity .18s ease, transform .18s ease",
+        "word-wrap: break-word",
+      ].join(";")
+    );
 
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
+    el.textContent = message;
+    host.appendChild(el);
 
-  const idVal = document.getElementById('identifier').value.trim();
-  const pwdVal = document.getElementById('password').value.trim();
-  const remember = !!document.getElementById('remember')?.checked;
-  const category = resolveCategory();
+    // animate in
+    requestAnimationFrame(() => {
+      el.style.opacity = "1";
+      el.style.transform = "translateY(0)";
+    });
 
-  setFieldError('field-identifier', false);
-  setFieldError('field-password', false);
-
-  let valid = true;
-  if (!idVal) {
-    setFieldError('field-identifier', true);
-    valid = false;
+    // auto-dismiss
+    const ttl = type === "success" ? 1800 : 3200;
+    setTimeout(() => {
+      el.style.opacity = "0";
+      el.style.transform = "translateY(-6px)";
+      setTimeout(() => el.remove(), 220);
+    }, ttl);
   }
-  if (!pwdVal) {
-    setFieldError('field-password', true);
-    valid = false;
+
+  // ---- Button loading state ----
+  function setLoading(isLoading) {
+    if (!btn) return;
+    btn.disabled = isLoading;
+    btn.setAttribute("aria-busy", String(isLoading));
+
+    if (isLoading) {
+      btn.dataset.originalText = btn.textContent;
+      btn.textContent = "Signing in…";
+      btn.style.opacity = "0.85";
+      btn.style.cursor = "not-allowed";
+    } else {
+      btn.textContent = btn.dataset.originalText || "CONTINUE";
+      btn.style.opacity = "";
+      btn.style.cursor = "";
+      delete btn.dataset.originalText;
+    }
   }
-  if (!valid) return;
 
-  setLoading(true);
-  setToast('Logging you in…', true);
+  function validateInputs(username, pin) {
+    if (!username) return "Please enter your username/email.";
+    if (!pin) return "Please enter your PIN.";
+    return null;
+  }
 
-  try {
-    const { res, data } = await loginRequest(idVal.toLowerCase(), pwdVal, category);
+  async function safeReadJson(res) {
+    // Handles cases where backend returns non-JSON or empty body
+    try {
+      return await res.json();
+    } catch {
+      return null;
+    }
+  }
 
-    if (res.ok) {
-      persistRemember(remember, idVal.toLowerCase(), category);
-      setToast((data && data.detail) || 'Login successful.', true);
-      window.location.href = nextUrl();
+  async function login() {
+    if (!usernameEl || !pinEl || !btn) {
+      console.error("Missing required elements (#username, #pin, #loginBtn).");
       return;
     }
 
-    if (res.status === 401) {
-      setFieldError('field-identifier', true);
-      setFieldError('field-password', true);
-      setToast((data && data.detail) || 'The sign in details are incorrect.', true);
-      setTimeout(() => setToast('', false), 3000);
+    const username = usernameEl.value.trim().toLowerCase();
+    const pin = pinEl.value; // keep as-is (could be numeric string)
+    const category = DEFAULT_CATEGORY;
+
+    const validationError = validateInputs(username, pin);
+    if (validationError) {
+      flash(validationError, "error");
       return;
     }
 
-    setToast((data && data.detail) || 'Something went wrong.', true);
-    setTimeout(() => setToast('', false), 3000);
-  } catch (_) {
-    setToast('Network error. Please try again.', true);
-    setTimeout(() => setToast('', false), 3000);
-  } finally {
-    setLoading(false);
-  }
-});
+    setLoading(true);
 
-document.getElementById('identifier').addEventListener('input', () => setFieldError('field-identifier', false));
-document.getElementById('password').addEventListener('input', () => setFieldError('field-password', false));
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // IMPORTANT: allow auth cookies to be set/used
+        body: JSON.stringify({ username, pin, category }),
+      });
+
+      const data = await safeReadJson(res);
+      const msg =
+        (data && (data.detail || data.message)) ||
+        (res.ok ? "Login successful." : "Request failed.");
+
+      if (res.ok) {
+        flash(msg, "success");
+        // redirect after a tiny beat so user sees the toast
+        setTimeout(() => {
+          window.location.assign(DASHBOARD_URL);
+        }, 350);
+      } else {
+        flash(msg, "error");
+      }
+    } catch (err) {
+      console.error(err);
+      flash("Network error. Please try again.", "error");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Click to login
+  if (btn) btn.addEventListener("click", login);
+
+  // Enter key to login (from either input)
+  function onEnter(e) {
+    if (e.key === "Enter") login();
+  }
+  if (usernameEl) usernameEl.addEventListener("keydown", onEnter);
+  if (pinEl) pinEl.addEventListener("keydown", onEnter);
+})();

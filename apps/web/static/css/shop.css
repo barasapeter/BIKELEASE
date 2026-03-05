@@ -1,0 +1,350 @@
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --asphalt:   #0F1014;
+    --carbon:    #1C1E26;
+    --steel:     #2A2D38;
+    --smoke:     #4A4F63;
+    --mist:      #8A8FA8;
+    --chalk:     #F0F0F5;
+    --white:     #FFFFFF;
+    --volt:      #C8F400;
+    --volt-dim:  #9BBF00;
+    --ember:     #FF4D1C;
+    --ember-dim: #CC3C14;
+    --sky:       #38B6FF;
+    --sky-dim:   #1A8FCC;
+  }
+
+  body {
+    background: var(--asphalt);
+    color: var(--chalk);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── COVER IMAGE ── */
+  .cover {
+    position: relative;
+    width: 100%;
+    height: 340px;
+    overflow: hidden;
+    border-bottom: 1px solid var(--steel);
+  }
+
+  .cover-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    filter: brightness(0.45);
+  }
+
+  .cover-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(15, 16, 20, 0.5) 60%,
+      var(--asphalt) 100%
+    );
+  }
+
+  .cover-content {
+    position: absolute;
+    bottom: 36px;
+    left: 56px;
+    right: 56px;
+  }
+
+  .cover-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--volt);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .cover-badge::before {
+    content: '';
+    width: 28px;
+    height: 1px;
+    background: var(--volt);
+  }
+
+  .cover-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(42px, 7vw, 80px);
+    line-height: 0.95;
+    letter-spacing: 2px;
+    color: var(--chalk);
+  }
+
+  .cover-title span {
+    color: var(--volt);
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .main {
+    padding: 48px 56px 80px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--smoke);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  /* ── STATS GRID ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+
+  .stat-card {
+    background: var(--carbon);
+    border: 1px solid var(--steel);
+    border-radius: 16px;
+    padding: 32px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+  }
+
+  .stat-card.volt-accent::before  { background: var(--volt); }
+  .stat-card.ember-accent::before { background: var(--ember); }
+  .stat-card.sky-accent::before   { background: var(--sky); }
+
+  .stat-card-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--smoke);
+    margin-bottom: 16px;
+  }
+
+  .stat-card-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 56px;
+    line-height: 1;
+    letter-spacing: 1px;
+  }
+
+  .stat-card.volt-accent  .stat-card-value { color: var(--volt); }
+  .stat-card.ember-accent .stat-card-value { color: var(--ember); }
+  .stat-card.sky-accent   .stat-card-value { color: var(--sky); }
+
+  .stat-card-sub {
+    font-size: 12px;
+    color: var(--mist);
+    margin-top: 6px;
+  }
+
+  .stat-card-link {
+    display: inline-block;
+    margin-top: 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+  }
+
+  .stat-card.volt-accent  .stat-card-link {
+    background: rgba(200, 244, 0, 0.12);
+    color: var(--volt);
+    border: 1px solid rgba(200, 244, 0, 0.25);
+  }
+
+  .stat-card.volt-accent .stat-card-link:hover {
+    background: rgba(200, 244, 0, 0.22);
+  }
+
+  .stat-card.ember-accent .stat-card-link {
+    background: rgba(255, 77, 28, 0.12);
+    color: var(--ember);
+    border: 1px solid rgba(255, 77, 28, 0.25);
+  }
+
+  .stat-card.ember-accent .stat-card-link:hover {
+    background: rgba(255, 77, 28, 0.22);
+  }
+
+  .stat-card.sky-accent .stat-card-link {
+    background: rgba(56, 182, 255, 0.12);
+    color: var(--sky);
+    border: 1px solid rgba(56, 182, 255, 0.25);
+  }
+
+  .stat-card.sky-accent .stat-card-link:hover {
+    background: rgba(56, 182, 255, 0.22);
+  }
+
+  /* ── SESSIONS SECTION ── */
+  .sessions-section {
+    margin-top: 0;
+  }
+
+  .sessions-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .sessions-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 1px;
+    color: var(--chalk);
+  }
+
+  .sessions-total-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--mist);
+    letter-spacing: 1px;
+  }
+
+  .sessions-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .session-card {
+    background: var(--carbon);
+    border: 1px solid var(--steel);
+    border-radius: 16px;
+    padding: 28px 28px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .session-card::after {
+    content: '';
+    position: absolute;
+    top: -30px;
+    right: -30px;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    opacity: 0.06;
+  }
+
+  .session-card.active-card::after  { background: var(--volt); }
+  .session-card.past-card::after    { background: var(--sky); }
+
+  .session-type {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .session-card.active-card .session-type { color: var(--volt); }
+  .session-card.past-card   .session-type { color: var(--sky); }
+
+  .session-count {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 72px;
+    line-height: 1;
+    letter-spacing: 1px;
+  }
+
+  .session-card.active-card .session-count { color: var(--volt); }
+  .session-card.past-card   .session-count { color: var(--sky); }
+
+  .session-desc {
+    font-size: 12px;
+    color: var(--mist);
+    margin-top: 6px;
+    line-height: 1.6;
+  }
+
+  .session-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-decoration: none;
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-weight: 700;
+  }
+
+  .session-link::after {
+    content: '→';
+    font-size: 13px;
+  }
+
+  .session-card.active-card .session-link {
+    background: var(--volt);
+    color: var(--asphalt);
+  }
+
+  .session-card.active-card .session-link:hover {
+    background: var(--volt-dim);
+  }
+
+  .session-card.past-card .session-link {
+    background: rgba(56, 182, 255, 0.15);
+    color: var(--sky);
+    border: 1px solid rgba(56, 182, 255, 0.3);
+  }
+
+  .session-card.past-card .session-link:hover {
+    background: rgba(56, 182, 255, 0.25);
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--steel);
+    margin: 40px 0;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .cover { height: 260px; }
+    .cover-content { left: 28px; right: 28px; bottom: 28px; }
+    .main { padding: 32px 28px 60px; }
+    .stats-grid { grid-template-columns: 1fr; }
+    .sessions-row { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 560px) {
+    .cover { height: 220px; }
+    .cover-title { font-size: 38px; }
+    .stat-card-value { font-size: 48px; }
+    .session-count { font-size: 56px; }
+  }

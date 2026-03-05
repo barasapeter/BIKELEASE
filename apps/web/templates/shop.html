@@ -1,11 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ shop.name }} — Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/shop.css">
 </head>
 <body>
-    <h1>Shop</h1>
+
+  <!-- COVER IMAGE -->
+  <div class="cover">
+    <img class="cover-img" src="{{ premise_image_url }}" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800&q=80'" alt="{{ shop.name }} premises">
+    <div class="cover-overlay"></div>
+    <div class="cover-content">
+      <div class="cover-badge">BIKELEASE</div>
+      <h1 class="cover-title">SHOP<br><span>Overview</span></h1>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+
+    <div class="section-label">01 — Fleet &amp; Activity Snapshot</div>
+
+    <!-- TOP STATS GRID -->
+    <div class="stats-grid">
+
+      <!-- SHOP NAME CARD -->
+      <div class="stat-card volt-accent">
+        <div class="stat-card-label">Shop Name</div>
+        <div class="stat-card-value" style="font-size: clamp(28px, 4vw, 44px); line-height: 1.1;">{{ shop.name }}</div>
+        <div class="stat-card-sub">Registered bike lease shop</div>
+      </div>
+
+      <!-- BIKES CARD -->
+      <div class="stat-card ember-accent">
+        <div class="stat-card-label">Bikes Registered</div>
+        <div class="stat-card-value">{{ bikes | length }}</div>
+        <div class="stat-card-sub">Active fleet size</div>
+        <a href="/bikes/{{ shop.id }}" class="stat-card-link">VIEW FLEET →</a>
+      </div>
+
+      <!-- TOTAL SESSIONS CARD -->
+      <div class="stat-card sky-accent">
+        <div class="stat-card-label">Total Sessions</div>
+        <div class="stat-card-value">{{ active + past }}</div>
+        <div class="stat-card-sub">All time across fleet</div>
+      </div>
+
+    </div>
+
+    <hr class="divider">
+
+    <!-- SESSIONS SECTION -->
+    <div class="sessions-section">
+
+      <div class="section-label">02 — Sessions Breakdown</div>
+
+      <div class="sessions-header">
+        <span class="sessions-title">Sessions</span>
+        <span class="sessions-total-tag">{{ active + past }} TOTAL</span>
+      </div>
+
+      <div class="sessions-row">
+
+        <!-- ACTIVE / ONGOING -->
+        <div class="session-card active-card">
+          <div class="session-type">Ongoing</div>
+          <div class="session-count">{{ active }}</div>
+          <div class="session-desc">Sessions currently in progress across the fleet.</div>
+          <a href="/sessions/{{ shop.id }}/active" class="session-link">VIEW ACTIVE</a>
+        </div>
+
+        <!-- PAST -->
+        <div class="session-card past-card">
+          <div class="session-type">Completed</div>
+          <div class="session-count">{{ past }}</div>
+          <div class="session-desc">Completed sessions — historical ride data.</div>
+          <a href="/sessions/{{ shop.id }}/past" class="session-link">VIEW PAST</a>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
 </body>
 </html>

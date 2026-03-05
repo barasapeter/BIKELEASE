@@ -107,8 +107,9 @@ async def shop(
                 forbid()
 
         context["shop"] = shop
-        context["employees"] = shop.employees
         context["bikes"] = shop.bikes
+        context["active"] = 2
+        context["past"] = 10
 
         return templates.TemplateResponse("shop.html", context)
 

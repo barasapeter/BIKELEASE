@@ -7,7 +7,16 @@ from fastapi import APIRouter, Request, Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse, Response
 
-from data.models import ShopOwner, Employee, Shop
+from sqlalchemy import func
+
+from data.models import (
+    ShopOwner,
+    Employee,
+    Shop,
+    Bike,
+    Session as BikeSession,
+    SessionCheckout,
+)
 
 from core import config
 
@@ -107,9 +116,27 @@ async def shop(
                 forbid()
 
         context["shop"] = shop
-        context["bikes"] = 28
-        context["active"] = 2
-        context["past"] = 10
+
+        # counts
+        context["bikes"] = (
+            db.query(func.count(Bike.id)).filter(Bike.shop_id == shop_id).scalar()
+        )
+        context["active"] = (
+            db.query(func.count(BikeSession.id))
+            .join(Bike, BikeSession.bike_id == Bike.id)
+            .filter(Bike.shop_id == shop_id)
+            .filter(BikeSession.stop_datetime.is_(None))
+            .scalar()
+        )
+
+        context["past"] = (
+            db.query(func.count(BikeSession.id))
+            .join(Bike, BikeSession.bike_id == Bike.id)
+            .join(SessionCheckout, SessionCheckout.session_id == BikeSession.id)
+            .filter(Bike.shop_id == shop_id)
+            .filter(SessionCheckout.amount_paid != 0)
+            .scalar()
+        )
 
         return templates.TemplateResponse("shop.html", context)
 

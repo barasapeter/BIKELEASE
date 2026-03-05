@@ -1,9 +1,11 @@
 from pathlib import Path
 import traceback
 
-from fastapi import APIRouter, Request, Depends, HTTPException
+from fastapi import APIRouter, Request, Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
+
+from data.models import ShopOwner, Employee, Shop
 
 from core import config
 
@@ -43,6 +45,13 @@ async def main(request: Request, user=Depends(get_current_user_optional)):
     try:
         if user is None:
             return RedirectResponse(url="/login")
+
+        # for owners only. 
+        if isinstance(user, ShopOwner):
+            context["user"] = user
+            context["shops"] = user.shops
+        elif isinstance(user, Employee):
+            return RedirectResponse("/shop")
 
         return templates.TemplateResponse("dashboard.html", context)
     except Exception:

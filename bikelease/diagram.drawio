@@ -578,7 +578,7 @@
             <mxRectangle width="150" height="30" as="alternateBounds" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="cQgE-zUbwSi9yypBTC5J-187" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;fillColor=#f5f5f5;gradientColor=#b3b3b3;strokeColor=#666666;" parent="1" source="cQgE-zUbwSi9yypBTC5J-169" target="cQgE-zUbwSi9yypBTC5J-155" edge="1">
+        <mxCell id="cQgE-zUbwSi9yypBTC5J-187" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" source="cQgE-zUbwSi9yypBTC5J-169" target="cQgE-zUbwSi9yypBTC5J-155" edge="1">
           <mxGeometry width="100" height="100" relative="1" as="geometry">
             <mxPoint x="210" y="250" as="sourcePoint" />
             <mxPoint x="270" y="270" as="targetPoint" />

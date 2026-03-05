@@ -14,44 +14,16 @@
     <img class="cover-img" src="{{ premise_image_url }}" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800&q=80'" alt="{{ shop.name }} premises">
     <div class="cover-overlay"></div>
     <div class="cover-content">
-      <div class="cover-badge">BIKELEASE</div>
-      <h1 class="cover-title">SHOP<br><span>Overview</span></h1>
+      <div class="cover-badge">{{ shop.name }}</div>
+      <h1 class="cover-title">SHOP <span>Overview</span></h1>
     </div>
   </div>
 
   <!-- MAIN CONTENT -->
   <div class="main">
 
-    <div class="section-label">01 — Fleet &amp; Activity Snapshot</div>
 
-    <!-- TOP STATS GRID -->
-    <div class="stats-grid">
-
-      <!-- SHOP NAME CARD -->
-      <div class="stat-card volt-accent">
-        <div class="stat-card-label">Shop Name</div>
-        <div class="stat-card-value" style="font-size: clamp(28px, 4vw, 44px); line-height: 1.1;">{{ shop.name }}</div>
-        <div class="stat-card-sub">Registered bike lease shop</div>
-      </div>
-
-      <!-- BIKES CARD -->
-      <div class="stat-card ember-accent">
-        <div class="stat-card-label">Bikes Registered</div>
-        <div class="stat-card-value">{{ bikes | length }}</div>
-        <div class="stat-card-sub">Active fleet size</div>
-        <a href="/bikes/{{ shop.id }}" class="stat-card-link">VIEW FLEET →</a>
-      </div>
-
-      <!-- TOTAL SESSIONS CARD -->
-      <div class="stat-card sky-accent">
-        <div class="stat-card-label">Total Sessions</div>
-        <div class="stat-card-value">{{ active + past }}</div>
-        <div class="stat-card-sub">All time across fleet</div>
-      </div>
-
-    </div>
-
-    <hr class="divider">
+    
 
     <!-- SESSIONS SECTION -->
     <div class="sessions-section">
@@ -81,6 +53,29 @@
           <a href="/sessions/{{ shop.id }}/past" class="session-link">VIEW PAST</a>
         </div>
 
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section-label">01 — Fleet &amp; Activity Snapshot</div>
+
+    <!-- TOP STATS GRID -->
+    <div class="stats-grid">
+
+      <!-- BIKES CARD -->
+      <div class="stat-card ember-accent">
+        <div class="stat-card-label">Bikes Registered</div>
+        <div class="stat-card-value">{{ bikes }}</div>
+        <div class="stat-card-sub">Active fleet size</div>
+        <a href="/bikes/{{ shop.id }}" class="stat-card-link">VIEW FLEET →</a>
+      </div>
+
+      <!-- TOTAL SESSIONS CARD -->
+      <div class="stat-card sky-accent">
+        <div class="stat-card-label">Total Sessions</div>
+        <div class="stat-card-value">{{ active + past }}</div>
+        <div class="stat-card-sub">All time across fleet</div>
       </div>
     </div>
 

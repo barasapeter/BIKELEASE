@@ -107,7 +107,7 @@ async def shop(
                 forbid()
 
         context["shop"] = shop
-        context["bikes"] = shop.bikes
+        context["bikes"] = 28
         context["active"] = 2
         context["past"] = 10
 

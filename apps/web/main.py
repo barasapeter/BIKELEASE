@@ -17,6 +17,8 @@ from sqlalchemy.orm import Session
 
 from data.db import get_db
 
+from core.errors import ShopNotFoundError
+
 router = APIRouter()
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -91,6 +93,9 @@ async def shop(
             return templates.TemplateResponse("error.html", context)
 
         shop = db.query(Shop).filter(Shop.id == shop_id).first()
+        if not shop:
+            raise ShopNotFoundError
+
         if isinstance(user, ShopOwner):
             context["role"] = "owner"
             if not shop in user.shops:
@@ -107,9 +112,9 @@ async def shop(
 
         return templates.TemplateResponse("shop.html", context)
 
-    except Exception:
-        context["status_code"] = 500
+    except Exception as e:
+        context["status_code"] = 400
         context["error_title"] = "Internal Server Error"
         context["error_body"] = "Something went wrong."
-        context["traceback"] = traceback.format_exc()
+        context["traceback"] = str(e)
         return templates.TemplateResponse("error.html", context)

@@ -1,160 +1,82 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BIKELEASE — Log In</title>
+<title>BIKELEASE — Sign In</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/css/login.css">
 </head>
 <body>
 
-<!-- ── LEFT PANEL ── -->
-<div class="left-panel">
-  <div class="panel-top">
-    <a class="logo" href="bikelease-landing.html"><span>BIKE</span>LEASE</a>
+<!-- LEFT -->
+<div class="left">
+  <div class="logo">BIKE<span>LEASE</span></div>
 
-    <div class="tagline">
-      <div class="tagline-eyebrow">Operator Portal</div>
-      <h2>LEASE.<br>TRACK.<br><span>EARN.</span></h2>
-      <p>The complete leasing platform for small bike businesses. Real-time billing, M-Pesa payments, and full USSD access from any phone.</p>
-    </div>
-
-    <div class="feature-pills">
-      <div class="pill">
-        <div class="pill-dot"></div>
-        <div><span>Live Timer</span> — tracks every second of every lease</div>
-      </div>
-      <div class="pill">
-        <div class="pill-dot"></div>
-        <div><span>RPM Billing</span> — auto-calculated, zero manual math</div>
-      </div>
-      <div class="pill">
-        <div class="pill-dot"></div>
-        <div><span>M-Pesa STK Push</span> — payment to any phone instantly</div>
-      </div>
-      <div class="pill">
-        <div class="pill-dot"></div>
-        <div><span>USSD Access</span> — works on any basic handset</div>
-      </div>
-    </div>
+  <div class="left-body">
+    <div class="eyebrow">Your urban fleet</div>
+    <h2>RIDE<br>ON YOUR<br><em>TERMS.</em></h2>
+    <p>Lease premium bikes by the day, week, or month. Pick up from any of our hubs — no contracts, no hassle.</p>
   </div>
 
-  <div class="panel-bottom">
-    <div class="ticker-label">Live on the platform</div>
-    <div class="ticker-wrap">
-      <div class="ticker-track">
-        <span class="ticker-item">Lease Management</span>
-        <span class="ticker-item">M-Pesa STK Push</span>
-        <span class="ticker-item">Rate Per Minute</span>
-        <span class="ticker-item">USSD Access</span>
-        <span class="ticker-item">Fleet Overview</span>
-        <span class="ticker-item">Revenue Reports</span>
-        <span class="ticker-item">Lease Management</span>
-        <span class="ticker-item">M-Pesa STK Push</span>
-        <span class="ticker-item">Rate Per Minute</span>
-        <span class="ticker-item">USSD Access</span>
-        <span class="ticker-item">Fleet Overview</span>
-        <span class="ticker-item">Revenue Reports</span>
-      </div>
+  <div class="stat-strip">
+    <div>
+      <div class="s-num">200<span>+</span></div>
+      <div class="s-lbl">Bikes available</div>
+    </div>
+    <div>
+      <div class="s-num">18</div>
+      <div class="s-lbl">City hubs</div>
+    </div>
+    <div>
+      <div class="s-num">4.9<span>★</span></div>
+      <div class="s-lbl">Avg. rating</div>
     </div>
   </div>
 </div>
 
-<!-- ── RIGHT PANEL ── -->
-<div class="right-panel">
-
-  <button class="theme-toggle" id="themeBtn" aria-label="Toggle theme">
-    <span class="icon-moon">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    </span>
-    <span class="icon-sun">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-    </span>
-  </button>
-
-  <div class="right-inner">
+<!-- RIGHT -->
+<div class="right">
+  <div class="form-wrap">
 
     <div class="form-header">
-      <div class="form-eyebrow">Operator Login</div>
-      <div class="form-title">WELCOME<br>BACK</div>
-      <div class="form-subtitle">Sign in to your BikeLease dashboard</div>
+      <h1>SIGN IN</h1>
+      <p>No account? <a href="#">Create one free →</a></p>
     </div>
 
-    <form id="loginForm" novalidate>
-
-      <!-- Phone / Email -->
-      <div class="field" id="field-identifier">
-        <label for="identifier">Username</label>
-        <div class="field-wrap">
-          <div class="field-icon">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.27 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.18 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.15a16 16 0 0 0 5.94 5.94l1.42-1.42a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 14.92z"/></svg>
-          </div>
-          <input type="text" id="identifier" name="identifier" placeholder="Username" autocomplete="username">
-        </div>
-        <div class="field-error">Please enter your phone number or email.</div>
-      </div>
-
-      <!-- Password -->
-      <div class="field" id="field-password">
-        <label for="password">Password</label>
-        <div class="field-wrap">
-          <div class="field-icon">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          </div>
-          <input type="password" id="password" name="password" placeholder="Enter your password" autocomplete="current-password">
-          <button type="button" class="pwd-toggle" id="pwdToggle" aria-label="Show password">
-            <svg id="eyeIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-          </button>
-        </div>
-        <div class="field-error">Please enter your password.</div>
-      </div>
-
-      <!-- Remember + Forgot -->
-      <div class="form-row">
-        <label class="remember-label">
-          <input type="checkbox" id="remember">
-          <div class="checkbox-box">
-            <svg class="checkbox-check" width="10" height="8" viewBox="0 0 10 8" fill="none">
-              <path d="M1 4L3.5 6.5L9 1" stroke="#0F1014" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          Remember me
-        </label>
-        <a href="#" class="forgot">Forgot password?</a>
-      </div>
-
-      <!-- Submit -->
-      <button type="submit" class="btn-submit" id="submitBtn">
-        <span class="btn-text">Log In to Dashboard →</span>
-        <div class="spinner"></div>
-      </button>
-
-    </form>
-
-    <!-- OR divider -->
-    <div class="or-divider"><span>or</span></div>
-
-    <!-- USSD option -->
-    <a href="tel:*483*1%23" class="ussd-option">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-      Access via USSD &nbsp;·&nbsp; Dial *483*1#
-    </a>
-
-    <div class="form-footer">
-      Don't have an account? <a href="#">Create one free</a><br>
-      <span style="margin-top:6px;display:block">← <a href="bikelease-landing.html">Back to homepage</a></span>
+    <div class="field">
+      <label>Email address</label>
+      <input type="email" placeholder="you@example.com" autocomplete="email">
     </div>
 
+    <div class="field">
+      <div class="field-row">
+        <label>Password</label>
+        <a href="#">Forgot password?</a>
+      </div>
+      <input type="password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+
+    <label class="remember">
+      <input type="checkbox">
+      <span>Keep me signed in</span>
+    </label>
+
+    <button class="btn-primary">CONTINUE</button>
+
+    <div class="divider"><span>OR</span></div>
+
+    <button class="btn-ghost">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z" fill="#4285F4"/>
+        <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z" fill="#34A853"/>
+        <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332Z" fill="#FBBC05"/>
+        <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58Z" fill="#EA4335"/>
+      </svg>
+      Continue with Google
+    </button>
   </div>
 </div>
 
-<!-- TOAST -->
-<div class="toast" id="toast">
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-  Logging you in…
-</div>
-
-<script src="/static/js/login.js"></script>
 </body>
 </html>

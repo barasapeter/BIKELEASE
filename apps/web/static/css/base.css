@@ -119,7 +119,7 @@ h1.hero-title{
   line-height:.92;letter-spacing:2px;color:var(--primary);transition:color .35s;
 }
 h1.hero-title .volt{color:var(--volt)}
-h1.hero-title .block{display:block}
+/* h1.hero-title .block{display:block} */
 
 .hero-sub{margin-top:28px;font-size:17px;font-weight:300;color:var(--secondary);line-height:1.75;max-width:520px;transition:color .35s}
 .hero-sub strong{color:var(--primary);font-weight:500}

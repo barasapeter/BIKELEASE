@@ -1,9 +1,15 @@
 from pathlib import Path
+import traceback
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Depends, HTTPException
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import RedirectResponse
 
 from core import config
+
+from core.security import (
+    get_current_user_optional,
+)
 
 router = APIRouter()
 
@@ -29,3 +35,18 @@ async def main(request: Request):
 async def main(request: Request):
     context = {"request": request}
     return templates.TemplateResponse("login.html", context)
+
+
+@router.get("/dashboard")
+async def main(request: Request, user=Depends(get_current_user_optional)):
+    context = {"request": request, "user": user}
+    try:
+        if user is None:
+            return RedirectResponse(url="/login")
+
+        return templates.TemplateResponse("dashboard.html", context)
+    except Exception:
+        context["status_code"] = 500
+        context["error_title"] = "Internal Server Error"
+        context["traceback"] = traceback.format_exc()
+        return templates.TemplateResponse("error.html", context)

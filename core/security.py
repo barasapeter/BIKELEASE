@@ -135,6 +135,33 @@ def get_current_user(
     return user
 
 
+def get_current_user_optional(
+    request: Request,
+    db: Session = Depends(get_db),
+) -> Optional[object]:
+    token = request.cookies.get(ACCESS_COOKIE_NAME)
+    if not token:
+        return None
+
+    try:
+        payload = verify_token(token, "access")
+    except HTTPException:
+        return None
+
+    user_id = payload.get("sub")
+    category = payload.get("cat")
+    if not user_id or not category:
+        return None
+
+    map_ = {"owner": ShopOwner, "employee": Employee}
+    model = map_.get(category)
+    if model is None:
+        return None
+
+    user = db.query(model).filter(model.id == user_id).first()
+    return user
+
+
 def csrf_protect(request: Request):
     csrf_cookie = request.cookies.get(CSRF_COOKIE_NAME)
     csrf_header = request.headers.get("X-CSRF-Token")

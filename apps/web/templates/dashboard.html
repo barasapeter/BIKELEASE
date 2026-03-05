@@ -13,10 +13,7 @@
   <div class="header-logo">BIKE<em>LEASE</em></div>
 
   <div class="header-right">
-    <div class="header-identity">
-      <span class="header-user-name">{{ user.name }}</span>
-      <span class="header-user-handle">@{{ user.username }}</span>
-    </div>
+    
     <div class="header-sep"></div>
     <a href="/settings" class="settings-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -25,21 +22,35 @@
       </svg>
       <span>Settings</span>
     </a>
+    <a href="/logout" class="settings-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" 
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        <span>Logout</span>
+    </a>
   </div>
 </header>
 
 <main>
   <div class="page-header">
     <div class="page-title-group">
-      <div class="page-eyebrow">Fleet Overview</div>
+      <div class="page-eyebrow">
+        <span class="header-user-name">{{ user.name }}</span>
+        <span class="header-user-handle">@{{ user.username }}</span>
+      </div>
       <div class="page-title">
         MY <em>SHOP{% if shops|length != 1 %}S{% endif %}</em>
         </div>
     </div>
+    {% if shops|length > 1 %}
     <div class="count-badge">
       <span class="count-num">{{ shops | length }}</span>
-      <span class="count-label">Shop{{ 's' if shops | length != 1 else '' }}<br>Registered</span>
+      <span class="count-label">Shop{{ 's' if shops | length != 1 else '' }}</span>
     </div>
+    {% endif %}
   </div>
 
   <div class="shops-grid">

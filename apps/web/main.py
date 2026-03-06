@@ -239,15 +239,15 @@ async def session_view(
         start = bike_session.start_datetime
         stop = bike_session.stop_datetime
 
-        duration = (stop - start).total_seconds() / 60  # minutes as float
-        duration = max(0, duration)  # avoid negatives if clocks/data are weird
+        duration = (stop - start).total_seconds() / 60 if stop else "ongoing" # minutes as float
+        duration = max(0, duration) if stop else "ongoing"  # avoid negatives if clocks/data are weird
 
-        amount = duration * bike_session.rpm_on_allocate
+        amount = round(duration * bike_session.rpm_on_allocate) if stop else None
 
         context["session"] = bike_session
         context["str"] = str
         context["duration"] = duration
-        context["amount"] = round(amount)
+        context["amount"] = amount
         context["shop"] = bike_session.bike.shop
         context["user"] = user
 

@@ -210,7 +210,12 @@
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeStopModal()">Cancel</button>
-      <button class="btn btn-stop" onclick="confirmStop()">Confirm &amp; Bill</button>
+      <button class="btn btn-stop" onclick="confirmStop()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="5" y="5" width="14" height="14" rx="1"/>
+        </svg>
+        Stop Now
+      </button>
     </div>
   </div>
 </div>
@@ -429,11 +434,20 @@
            </div>`
         : "";
 
-      await swalDark.fire({
+      const result = await swalDark.fire({
         icon: "success",
-        title: method === "MPESA" ? "STK Push Sent!" : commit ? "Payment Confirmed!" : "Preview Ready",
+        title:
+          method === "MPESA"
+            ? "STK Push Sent!"
+            : commit
+            ? "Payment Confirmed!"
+            : "Preview Ready",
         html: `<p style="color:#94a3b8;margin:0">${data.detail || "Checkout successful."}</p>${amountLine}`,
       });
+
+      if (result.isConfirmed || result.isDismissed) {
+        window.location.reload();
+      }
 
     } catch (err) {
       console.error(err);

@@ -68,6 +68,7 @@ async def query_all(
             {
                 "customer": s.customer.name,
                 "phone": s.customer.primary_phone,
+                "photo": s.customer.metadata_e.get("photo", "/static/imgs/avatar.png"),
                 "bike": f"{s.bike.nickname} {s.bike_id}",
                 "start": s.start_datetime,
                 "stop": s.stop_datetime,

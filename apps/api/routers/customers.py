@@ -106,7 +106,7 @@ async def create_customer(
         raise HTTPException(status_code=500, detail="Something went wrong.")
 
 
-@router.post("/start-session")
+@router.post("/start-session") 
 async def create_session(
     request: Request,
     db: Session = Depends(get_db),

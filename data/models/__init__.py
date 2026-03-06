@@ -265,7 +265,7 @@ class SessionCheckout(Base):
         cascade="all, delete-orphan",
     )
 
-    def __repr__(self) -> str:
+    def __repr__(self) -> str: 
         return (
             f"<SessionCheckout(id={self.id}, "
             f"session_id={self.session_id}, "

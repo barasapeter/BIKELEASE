@@ -3,7 +3,7 @@ import traceback
 from uuid import UUID
 
 
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Request, Depends, HTTPException
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse, Response
 
@@ -23,6 +23,7 @@ from core import config
 from core.security import get_current_user_optional, clear_auth_cookies
 
 from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from data.db import get_db
 
@@ -149,7 +150,7 @@ async def shop(
 
 
 @router.get("/sessions/{shop_id}")
-async def shop(
+async def sessions(
     shop_id: UUID,
     request: Request,
     user=Depends(get_current_user_optional),
@@ -165,3 +166,82 @@ async def shop(
         context["error_title"] = "Internal Server Error"
         context["traceback"] = traceback.format_exc()
         return templates.TemplateResponse("error.html", context)
+
+
+@router.get("/session/{session_id}")
+async def session_view(
+    session_id: UUID,
+    request: Request,
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user_optional),
+):
+    context = {"request": request}
+
+    def render_error(status_code: int, error_title: str, error_body: str):
+        context["status_code"] = status_code
+        context["error_title"] = error_title
+        context["error_body"] = error_body
+        return templates.TemplateResponse(
+            "error.html", context, status_code=status_code
+        )
+
+    def forbid():
+        return render_error(
+            403,
+            "Forbidden",
+            "Please check your access rights, then try again.",
+        )
+
+    def not_found():
+        return render_error(
+            404,
+            "Session Not Found",
+            "The requested session could not be found.",
+        )
+
+    def internal_error():
+        context["status_code"] = 500
+        context["error_title"] = "Internal Server Error"
+        context["error_body"] = "Something went wrong while loading the session."
+        context["traceback"] = traceback.format_exc()
+        return templates.TemplateResponse("error.html", context, status_code=500)
+
+    try:
+        if user is None:
+            return RedirectResponse(url="/login")
+
+        query = (
+            db.query(BikeSession)
+            .join(BikeSession.bike)  # Session -> Bike
+            .join(Bike.shop)  # Bike -> Shop
+            .options(
+                joinedload(BikeSession.customer),
+                joinedload(BikeSession.bike).joinedload(Bike.shop),
+                joinedload(BikeSession.checkout),
+            )
+            .filter(BikeSession.id == session_id)
+        )
+
+        if isinstance(user, ShopOwner):
+            query = query.filter(Shop.owner_id == user.id)
+        elif isinstance(user, Employee):
+            query = query.filter(Shop.id == user.shop_id)
+        else:
+            return forbid()
+
+        bike_session = query.first()
+
+        if bike_session is None:
+            # covers both:
+            # - session does not exist
+            # - session exists but user is not allowed to access it
+            return not_found()
+
+        context["session"] = bike_session
+        context["shop"] = bike_session.bike.shop
+        context["user"] = user
+
+        return templates.TemplateResponse("session.html", context)
+
+    except Exception:
+        return internal_error()

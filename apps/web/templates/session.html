@@ -132,7 +132,7 @@
         </div>
         <div class="data-cell">
           <div class="data-label">Amount Billed</div>
-          <div class="data-value large volt">{{ "KES " + str(session.checkout.amount_paid) if session.checkout else "Not Yet Billed" }}</div>
+          <div class="data-value large volt">{{ "KES " + str(session.checkout.amount_paid) if session.checkout else "KES " +  str(amount)  }}</div>
         </div>
         <div class="data-cell">
           <div class="data-label">Payment Method</div>

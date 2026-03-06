@@ -34,7 +34,7 @@ const startFmt = formatDatetime(s.start);
 const stopFmt = s.stop ? formatDatetime(s.stop) : isOngoing ? '<span style="color:var(--volt);font-family:\'Space Mono\',monospace;font-size:10px;letter-spacing:1px;">LIVE</span>' : '—';
 
 const durationBadge = isOngoing
-    ? `<span class="badge-duration badge-ongoing">● ONGOING</span>`
+    ? `<span class="badge-duration badge-ongoing"></span>`
     : `<span class="badge-duration badge-done">${escapeHtml(s.duration)}</span>`;
 
 const amountHtml = isOngoing
@@ -47,8 +47,10 @@ const actionBtn = s.action === 'print'
         Print
         </button>`
     : `<button class="btn-action btn-stop" onclick="handleStop('${escapeHtml(s.id)}')">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-        Overview
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="5" y="5" width="14" height="14" rx="1"/>
+        </svg>
+        Details
         </button>`;
 
 return `

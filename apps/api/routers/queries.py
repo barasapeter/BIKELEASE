@@ -78,7 +78,7 @@ async def query_all(
                     if s.checkout
                     else "ongoing"
                 ),
-                "amount": int(s.checkout.amount_paid) if s.checkout else "ongoing",
+                "amount": int(s.checkout.amount_paid) if s.checkout else "null",
                 "action": "print" if s.checkout and int(s.checkout.amount_paid) else "stop",
             }
             for s in sessions

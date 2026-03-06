@@ -64,10 +64,22 @@ async def query_all(
             .all()
         )
 
-        return {
-            "count": len(sessions),
-            "sessions": [repr(s) for s in sessions],
-        }
+        return [
+            {
+                "customer": s.customer.name,
+                "phone": s.customer.primary_phone,
+                "bike": f"{s.bike.nickname} {s.bike_id}",
+                "start": s.start_datetime,
+                "stop": s.stop_datetime,
+                "duration": (
+                    f"{s.checkout.duration_in_minutes} minute{"s" if s.checkout.duration_in_minutes > 1 else ""}"
+                    if s.checkout
+                    else "ongoing"
+                ),
+                "amount": int(s.checkout.amount_paid) if s.checkout else "ongoing",
+            }
+            for s in sessions
+        ]
 
     except HTTPException:
         raise

@@ -238,13 +238,13 @@
     </div>
     
     <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeStopModal()">Cash</button>
-      <button class="btn btn-stop" onclick="confirmStop()">MPESA</button>
+      <button class="btn btn-ghost" onclick="handleCheckout('CASH')">Cash</button>
+      <button class="btn btn-stop" onclick="handleCheckout('MPESA')">MPESA</button>
     </div>
   </div>
 </div>
 {% endif %}
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
   {% if not session.stop_datetime %}
@@ -306,15 +306,151 @@
   {% endif %}
 
   {% if session.stop_datetime and not session.checkout %}
-  function triggerBilling() {
-    alert("Triggering Billing...");
-  }
   function openBillingModal() {
     document.getElementById('billing-modal').classList.add('open');
   }
   function closeBillingModal() {
-    document.getElementById('billing-modal').classList.remove('open');
+    document.getElementById("billing-modal").classList.remove("open");
   }
+
+  document.getElementById("billing-modal").addEventListener("click", function (e) {
+    if (e.target === this) {
+      closeBillingModal();
+    }
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
+      closeBillingModal();
+    }
+  });
+
+
+
+  
+
+
+
+  const swalDark = Swal.mixin({
+    background: "#0f1117",
+    color: "#e2e8f0",
+    customClass: {
+      popup: "swal-dark-popup",
+      confirmButton: "swal-btn-confirm",
+      cancelButton: "swal-btn-cancel",
+      denyButton: "swal-btn-deny",
+    },
+    buttonsStyling: false,
+  });
+
+  async function handleCheckout(method) {
+    const sessionId = "{{ session.id }}";
+    const phone = "{{ session.customer.primary_phone }}";
+    const methodLabel = method === "CASH" ? "Cash" : "M-Pesa";
+    const methodIcon = method === "CASH" ? "Cash" : "M-PESA";
+
+    // --- Step 1: Confirm method ---
+    const { isConfirmed: methodConfirmed } = await swalDark.fire({
+      title: `Checkout via ${methodLabel}`,
+      html: `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <span style="font-size:2.5rem; display:none;">${methodIcon}</span>
+          <p style="margin:0;color:#94a3b8;font-size:0.95rem">
+            Are you sure you want to check out using <strong style="color:#e2e8f0">${methodLabel}</strong>?
+          </p>
+        </div>`,
+      showCancelButton: true,
+      confirmButtonText: "Yes, proceed",
+      cancelButtonText: "Cancel",
+    });
+    if (!methodConfirmed) return;
+
+    // --- Step 2: For CASH, ask commit or preview ---
+    let commit = true;
+    if (method === "CASH") {
+      const { isConfirmed, isDenied } = await swalDark.fire({
+        title: "Confirm Cash Payment",
+        html: `<p style="color:#94a3b8;margin:0;font-size:0.95rem">
+                 Do you want to <strong style="color:#e2e8f0">confirm</strong> this payment now,
+                 or just <strong style="color:#e2e8f0">preview</strong> the amount?
+               </p>`,
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: "Confirm Payment",
+        denyButtonText: "Preview Amount",
+        cancelButtonText: "Cancel",
+      });
+      if (!isConfirmed && !isDenied) return; // cancelled
+      commit = isConfirmed; // true = confirm, false = preview
+    }
+
+    // --- Step 3: Loading state ---
+    swalDark.fire({
+      title: "Processing...",
+      html: `<p style="color:#94a3b8;margin:0">Please wait while we process your ${methodLabel} checkout.</p>`,
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => Swal.showLoading(),
+    });
+
+    // --- Step 4: Build payload & call API ---
+    const payload = {
+      session_id: sessionId,
+      payment_method: method,
+      commit: method === "MPESA" ? true : commit,
+      phone: phone || null,
+    };
+
+    try {
+      const response = await fetch("/customers/v1/checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        await swalDark.fire({
+          icon: "error",
+          title: "Checkout Failed",
+          text: data.detail || "Something went wrong. Please try again.",
+        });
+        return;
+      }
+
+      // --- Step 5: Success ---
+      const amountLine = data.amount != null
+        ? `<div style="margin-top:12px;padding:10px 16px;background:#1e2533;border-radius:8px;display:inline-block">
+             <span style="color:#94a3b8;font-size:0.8rem">DURATION</span>
+             <span style="color:#e2e8f0;font-weight:600;margin:0 16px">${Math.round(data.duration ?? 0)} min</span>
+             <span style="color:#94a3b8;font-size:0.8rem">AMOUNT</span>
+             <span style="color:#4ade80;font-weight:700;margin-left:6px">KES ${data.amount}</span>
+           </div>`
+        : "";
+
+      await swalDark.fire({
+        icon: "success",
+        title: method === "MPESA" ? "STK Push Sent!" : commit ? "Payment Confirmed!" : "Preview Ready",
+        html: `<p style="color:#94a3b8;margin:0">${data.detail || "Checkout successful."}</p>${amountLine}`,
+      });
+
+    } catch (err) {
+      console.error(err);
+      await swalDark.fire({
+        icon: "error",
+        title: "Network Error",
+        text: "Could not reach the server. Please check your connection and try again.",
+      });
+    }
+  }
+  
+
+
+
+
+
+  
   {% endif %}
 </script>
 

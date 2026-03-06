@@ -474,3 +474,29 @@
     .mpesa-header { grid-column: span 2; }
     .live-value { font-size: 28px; }
   }
+
+
+
+  .swal-dark-popup {
+    border: 1px solid #1e2533;
+    border-radius: 14px !important;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6) !important;
+  }
+
+  .swal-btn-confirm, .swal-btn-cancel, .swal-btn-deny {
+    padding: 9px 22px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    margin: 5px;
+  }
+  .swal-btn-confirm:hover, .swal-btn-cancel:hover, .swal-btn-deny:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+  }
+  .swal-btn-confirm { background: #3b82f6; color: #fff; }
+  .swal-btn-cancel  { background: #1e2533; color: #94a3b8; }
+  .swal-btn-deny    { background: #334155; color: #e2e8f0; }

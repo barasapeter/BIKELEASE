@@ -146,3 +146,22 @@ async def shop(
         context["error_body"] = "Something went wrong."
         context["traceback"] = str(e)
         return templates.TemplateResponse("error.html", context)
+
+
+@router.get("/sessions/{shop_id}")
+async def shop(
+    shop_id: UUID,
+    request: Request,
+    user=Depends(get_current_user_optional),
+):
+    context = {"request": request, "shop": shop_id}
+    try:
+        if user is None:
+            return RedirectResponse(url="/login")
+
+        return templates.TemplateResponse("sessions.html", context)
+    except Exception:
+        context["status_code"] = 500
+        context["error_title"] = "Internal Server Error"
+        context["traceback"] = traceback.format_exc()
+        return templates.TemplateResponse("error.html", context)

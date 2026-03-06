@@ -1,0 +1,575 @@
+i need a html template that queries the api:
+```
+@router.get("/sessions/{shop_id}/all")
+async def query_all(
+    request: Request,
+    shop_id: UUID,
+    db: DBSession = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    try:
+        shop = db.query(Shop).filter(Shop.id == shop_id).first()
+        if not shop:
+            raise HTTPException(status_code=400, detail="Shop does not exist.")
+
+        def forbid():
+            raise HTTPException(
+                status_code=403, detail="You do not have access rights."
+            )
+
+        if isinstance(current_user, ShopOwner):
+            if shop.owner_id != current_user.id:
+                forbid()
+
+        elif isinstance(current_user, Employee):
+            if current_user.shop_id != shop_id:
+                forbid()
+
+        sessions = (
+            db.query(BikeSession)
+            .join(Bike, BikeSession.bike_id == Bike.id)
+            .filter(Bike.shop_id == shop_id)
+            .options(
+                joinedload(BikeSession.customer),
+                joinedload(BikeSession.bike),
+                joinedload(BikeSession.checkout),
+            )
+            .order_by(BikeSession.start_datetime.desc())
+            .all()
+        )
+
+        return [
+            {
+                "id": s.id,
+                "customer": s.customer.name,
+                "phone": s.customer.primary_phone,
+                "photo": s.customer.metadata_e.get("photo", "/static/imgs/avatar.png"),
+                "bike": f"{s.bike.nickname} {s.bike_id}",
+                "start": s.start_datetime,
+                "stop": s.stop_datetime,
+                "duration": (
+                    f"{s.checkout.duration_in_minutes} minute{"s" if s.checkout.duration_in_minutes > 1 else ""}"
+                    if s.checkout
+                    else "ongoing"
+                ),
+                "amount": int(s.checkout.amount_paid) if s.checkout else "ongoing",
+                "action": "print" if int(s.checkout.amount_paid) else "stop",
+            }
+            for s in sessions
+        ]
+
+    except HTTPException:
+        raise
+    except Exception:
+        logger.error(f"{request.url.path}\n{traceback.format_exc()}\n\n")
+        return JSONResponse(
+            status_code=422, content={"detail": "Something went wrong."}
+        )
+```
+
+URL prefix: /queries/v1
+
+you get shop_id for the template via the URL, eg /session/session_id, a route that renders the template.
+
+the page must load the sessions on load. it must use skeleton structure, eg show that it is fetching data on load.
+
+after a successful fetch, display the information in a clean, modern, responsive layout.
+
+you need to use this color palette, check my palette template below:
+```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIKELEASE — Color Palette</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --asphalt:    #0F1014;
+    --carbon:     #1C1E26;
+    --steel:      #2A2D38;
+    --smoke:      #4A4F63;
+    --mist:       #8A8FA8;
+    --chalk:      #F0F0F5;
+    --white:      #FFFFFF;
+
+    --volt:       #C8F400;
+    --volt-dim:   #9BBF00;
+    --ember:      #FF4D1C;
+    --ember-dim:  #CC3C14;
+    --sky:        #38B6FF;
+    --sky-dim:    #1A8FCC;
+  }
+
+  body {
+    background: var(--asphalt);
+    color: var(--chalk);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    padding: 80px 60px 60px;
+    border-bottom: 1px solid var(--steel);
+    overflow: hidden;
+  }
+  .hero::before {
+    content: 'BIKELEASE';
+    position: absolute;
+    top: -20px; right: -20px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(120px, 20vw, 260px);
+    color: var(--carbon);
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+    letter-spacing: -4px;
+  }
+  .badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--volt);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .badge::before { content: ''; width: 32px; height: 1px; background: var(--volt); }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 8vw, 96px);
+    line-height: 0.9;
+    letter-spacing: 2px;
+    position: relative;
+    z-index: 1;
+  }
+  h1 span { color: var(--volt); }
+  .hero-sub {
+    margin-top: 20px;
+    font-size: 15px;
+    color: var(--mist);
+    max-width: 480px;
+    line-height: 1.7;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── GRID ── */
+  .section { padding: 60px; }
+  .section + .section { border-top: 1px solid var(--steel); }
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--smoke);
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+
+  /* ── SWATCHES ── */
+  .swatches {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+  }
+  .swatch {
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .swatch:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+  .swatch-color {
+    height: 120px;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    padding: 12px;
+  }
+  .swatch-name-overlay {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    text-transform: uppercase;
+  }
+  .swatch:hover .swatch-name-overlay { opacity: 0.7; }
+  .swatch-info {
+    background: var(--carbon);
+    padding: 14px 16px;
+  }
+  .swatch-info strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+  }
+  .swatch-info small {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--smoke);
+  }
+  .swatch-info p {
+    font-size: 11px;
+    color: var(--mist);
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  /* ── ACCENT ROW ── */
+  .accents {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .accent-card {
+    padding: 32px;
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .accent-card:hover { transform: scale(1.02); }
+  .accent-card .label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 40px;
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+  .accent-card .hex {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    margin-top: 8px;
+    opacity: 0.7;
+  }
+  .accent-card .role {
+    font-size: 12px;
+    margin-top: 12px;
+    line-height: 1.5;
+    opacity: 0.85;
+  }
+  .accent-card::after {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+  }
+
+  /* VOLT */
+  .ac-volt  { background: var(--volt); color: var(--asphalt); }
+  /* EMBER */
+  .ac-ember { background: var(--ember); color: var(--white); }
+  /* SKY */
+  .ac-sky   { background: var(--sky); color: var(--asphalt); }
+
+  /* ── USAGE PREVIEW ── */
+  .usage-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .mock-card {
+    background: var(--carbon);
+    border-radius: 16px;
+    padding: 28px;
+    border: 1px solid var(--steel);
+  }
+  .mock-card h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .mock-card p { font-size: 13px; color: var(--mist); line-height: 1.6; }
+  .mock-btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border: none;
+  }
+  .btn-volt  { background: var(--volt);  color: var(--asphalt); }
+  .btn-ghost { background: transparent; color: var(--chalk); border: 1px solid var(--steel); }
+  .btn-ember { background: var(--ember); color: #fff; }
+
+  .mock-nav {
+    background: var(--carbon);
+    border-radius: 16px;
+    padding: 20px 28px;
+    border: 1px solid var(--steel);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    grid-column: span 2;
+  }
+  .mock-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+  }
+  .mock-logo span { color: var(--volt); }
+  .mock-links { display: flex; gap: 28px; font-size: 13px; color: var(--mist); }
+  .mock-links a { color: var(--chalk); text-decoration: none; font-weight: 500; }
+  .mock-cta {
+    background: var(--volt);
+    color: var(--asphalt);
+    font-weight: 700;
+    padding: 9px 22px;
+    border-radius: 8px;
+    font-size: 13px;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'Space Mono', monospace;
+  }
+  .tag-volt  { background: rgba(200,244,0,0.15); color: var(--volt); }
+  .tag-ember { background: rgba(255,77,28,0.15);  color: var(--ember); }
+  .tag-sky   { background: rgba(56,182,255,0.15); color: var(--sky); }
+
+  .stat-row {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+  }
+  .stat { flex: 1; }
+  .stat .num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: var(--volt);
+    line-height: 1;
+  }
+  .stat .lbl { font-size: 11px; color: var(--mist); margin-top: 2px; }
+
+  /* ── CSS VARIABLES SNIPPET ── */
+  .code-block {
+    background: var(--carbon);
+    border: 1px solid var(--steel);
+    border-radius: 16px;
+    padding: 32px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    line-height: 2;
+    color: var(--mist);
+    overflow-x: auto;
+  }
+  .code-block .kw  { color: var(--volt); }
+  .code-block .var { color: var(--sky); }
+  .code-block .val { color: var(--chalk); }
+  .code-block .cmt { color: var(--smoke); font-style: italic; }
+
+  /* copy hint */
+  .copy-tip {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--smoke);
+    margin-top: 12px;
+    letter-spacing: 1px;
+  }
+
+  @media (max-width: 768px) {
+    .hero, .section { padding: 40px 24px; }
+    .accents { grid-template-columns: 1fr; }
+    .usage-grid { grid-template-columns: 1fr; }
+    .mock-nav { grid-column: span 1; flex-wrap: wrap; gap: 16px; }
+    .mock-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="badge">Color System — 2026</div>
+  <h1>BIKELEASE<br><span>PALETTE</span></h1>
+  <p class="hero-sub">A high-contrast, urban-sport color system built for clarity, speed, and trust — designed for a bike leasing platform with energy and edge.</p>
+</div>
+
+<!-- NEUTRALS -->
+<div class="section">
+  <div class="section-label">01 — Base Neutrals · The Road</div>
+  <div class="swatches">
+    <div class="swatch">
+      <div class="swatch-color" style="background:#0F1014">
+        <span class="swatch-name-overlay" style="color:#fff">Asphalt</span>
+      </div>
+      <div class="swatch-info">
+        <strong>Asphalt</strong>
+        <small>#0F1014</small>
+        <p>Primary background. Deep, near-black with a cool blue undertone — like wet tarmac at night.</p>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#1C1E26">
+        <span class="swatch-name-overlay" style="color:#fff">Carbon</span>
+      </div>
+      <div class="swatch-info">
+        <strong>Carbon</strong>
+        <small>#1C1E26</small>
+        <p>Card & panel backgrounds. Named after carbon fiber — lightweight and structural.</p>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#2A2D38">
+        <span class="swatch-name-overlay" style="color:#fff">Steel</span>
+      </div>
+      <div class="swatch-info">
+        <strong>Steel</strong>
+        <small>#2A2D38</small>
+        <p>Borders, dividers, and subtle UI structure. The frame of the bike.</p>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#4A4F63">
+        <span class="swatch-name-overlay" style="color:#fff">Smoke</span>
+      </div>
+      <div class="swatch-info">
+        <strong>Smoke</strong>
+        <small>#4A4F63</small>
+        <p>Disabled states, placeholder text, inactive UI elements.</p>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#8A8FA8">
+        <span class="swatch-name-overlay" style="color:#fff">Mist</span>
+      </div>
+      <div class="swatch-info">
+        <strong>Mist</strong>
+        <small>#8A8FA8</small>
+        <p>Secondary body text, captions, metadata. Readable without competing with headings.</p>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#F0F0F5">
+        <span class="swatch-name-overlay" style="color:#0F1014">Chalk</span>
+      </div>
+      <div class="swatch-info">
+        <strong>Chalk</strong>
+        <small>#F0F0F5</small>
+        <p>Primary body text. Slightly cooler than pure white — easier on the eyes over dark surfaces.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ACCENTS -->
+<div class="section">
+  <div class="section-label">02 — Accent Colors · The Ride</div>
+  <div class="accents">
+    <div class="accent-card ac-volt">
+      <div class="label">VOLT</div>
+      <div class="hex">#C8F400 · Primary Action</div>
+      <div class="role">CTAs, highlights, active states, badges. High visibility — like safety vests and racing stripes. Your brand's energy source.</div>
+    </div>
+    <div class="accent-card ac-ember">
+      <div class="label">EMBER</div>
+      <div class="hex">#FF4D1C · Urgency & Alerts</div>
+      <div class="role">Warnings, expiring rentals, errors, promotional urgency. The hot brake disc — commands immediate attention.</div>
+    </div>
+    <div class="accent-card ac-sky">
+      <div class="label">SKY</div>
+      <div class="hex">#38B6FF · Info & Trust</div>
+      <div class="role">Links, informational states, maps, GPS elements. Open-road blue — conveys freedom and reliability.</div>
+    </div>
+  </div>
+</div>
+
+<!-- USAGE PREVIEW -->
+<div class="section">
+  <div class="section-label">03 — Usage Preview · In Context</div>
+  <div class="usage-grid">
+
+    <div class="mock-nav">
+      <div class="mock-logo">BIKE<span>LEASE</span></div>
+      <div class="mock-links">
+        <a href="#">Fleet</a>
+        <a href="#">Pricing</a>
+        <a href="#">Locations</a>
+        <a href="#">Dashboard</a>
+      </div>
+      <div class="mock-cta">Lease Now</div>
+    </div>
+
+    <div class="mock-card">
+      <span class="tag tag-volt">Available</span>
+      <h3 style="margin-top:12px">Trek FX Sport 4</h3>
+      <p>Urban commuter. Carbon fork, hydraulic disc brakes. Pick up from Nairobi CBD.</p>
+      <div class="stat-row">
+        <div class="stat"><div class="num">KES 800</div><div class="lbl">per day</div></div>
+        <div class="stat"><div class="num">4.9★</div><div class="lbl">rating</div></div>
+        <div class="stat"><div class="num">3</div><div class="lbl">available</div></div>
+      </div>
+      <button class="mock-btn btn-volt">Reserve Bike</button>
+    </div>
+
+    <div class="mock-card">
+      <span class="tag tag-ember">Ending Soon</span>
+      <h3 style="margin-top:12px; color:var(--chalk)">Your Active Lease</h3>
+      <p>Specialized Sirrus — return by <strong style="color:var(--ember)">Today 6:00 PM</strong> to avoid late fees.</p>
+      <div class="stat-row">
+        <div class="stat"><div class="num" style="color:var(--ember)">2h 14m</div><div class="lbl">remaining</div></div>
+        <div class="stat"><div class="num">12km</div><div class="lbl">ridden today</div></div>
+      </div>
+      <button class="mock-btn btn-ember">Extend Lease</button>
+      <button class="mock-btn btn-ghost" style="margin-left:8px">Return Now</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- CSS SNIPPET -->
+<div class="section">
+  <div class="section-label">04 — CSS Variables · Copy & Use</div>
+  <div class="code-block">
+<span class="cmt">/* BIKELEASE — Design Tokens */</span>
+<span class="kw">:root</span> {
+  <span class="cmt">/* Neutrals */</span>
+  <span class="var">--color-asphalt</span>: <span class="val">#0F1014</span>;   <span class="cmt">/* bg primary */</span>
+  <span class="var">--color-carbon</span>:  <span class="val">#1C1E26</span>;   <span class="cmt">/* bg cards */</span>
+  <span class="var">--color-steel</span>:   <span class="val">#2A2D38</span>;   <span class="cmt">/* borders */</span>
+  <span class="var">--color-smoke</span>:   <span class="val">#4A4F63</span>;   <span class="cmt">/* disabled */</span>
+  <span class="var">--color-mist</span>:    <span class="val">#8A8FA8</span>;   <span class="cmt">/* secondary text */</span>
+  <span class="var">--color-chalk</span>:   <span class="val">#F0F0F5</span>;   <span class="cmt">/* primary text */</span>
+
+  <span class="cmt">/* Accents */</span>
+  <span class="var">--color-volt</span>:    <span class="val">#C8F400</span>;   <span class="cmt">/* primary CTA */</span>
+  <span class="var">--color-ember</span>:   <span class="val">#FF4D1C</span>;   <span class="cmt">/* urgent / alert */</span>
+  <span class="var">--color-sky</span>:     <span class="val">#38B6FF</span>;   <span class="cmt">/* info / links */</span>
+}
+  </div>
+  <p class="copy-tip">↑ Drop this into your root stylesheet to start building</p>
+</div>
+
+</body>
+</html>
+```
+
+IMPORTANT: DO NOT, NEVER EVER USE ANY COLORS THAT ARE OUTSIDE MY PALETTE. The branding must be consistent.
+
+you must display all the info that the api returns for each element. avoid complex analytics, and unrequested summarues.
+
+your task is to display the information returned by the API, no bloat.

@@ -66,6 +66,7 @@ async def query_all(
 
         return [
             {
+                "id": s.id,
                 "customer": s.customer.name,
                 "phone": s.customer.primary_phone,
                 "photo": s.customer.metadata_e.get("photo", "/static/imgs/avatar.png"),
@@ -78,6 +79,7 @@ async def query_all(
                     else "ongoing"
                 ),
                 "amount": int(s.checkout.amount_paid) if s.checkout else "ongoing",
+                "action": "print" if int(s.checkout.amount_paid) else "stop",
             }
             for s in sessions
         ]

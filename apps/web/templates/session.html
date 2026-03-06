@@ -566,12 +566,12 @@
         </div>
         <div class="data-cell">
           <div class="data-label">Start Time</div>
-          <div class="data-value mono" style="font-size:12px">{{ session.start_datetime }}</div>
+          <div class="data-value mono" style="font-size:12px">{{ session.start_datetime | strftime("%d %b %Y, %H:%M") }}</div>
         </div>
         <div class="data-cell">
           <div class="data-label">Stop Time</div>
           {% if session.stop_datetime %}
-          <div class="data-value mono" style="font-size:12px">{{ session.stop_datetime }}</div>
+          <div class="data-value mono" style="font-size:12px">{{ session.stop_datetime | strftime("%d %b %Y, %H:%M") }}</div>
           {% else %}
           <div class="data-value mono" style="color:var(--smoke)">— Active —</div>
           {% endif %}
@@ -609,7 +609,7 @@
         </div>
         <div class="data-cell">
           <div class="data-label">Amount Billed</div>
-          <div class="data-value large volt">KES {{ session.checkout.amount_paid }}</div>
+          <div class="data-value large volt">{{ "KES " + str(session.checkout.amount_paid) if session.checkout else "Not Yet Billed" }}</div>
         </div>
         <div class="data-cell">
           <div class="data-label">Payment Method</div>
@@ -640,12 +640,20 @@
 
   <!-- ── ACTION ROW ── -->
   <div class="actions-row">
-    {% if session.stop_datetime %}
-      <!-- Completed: print receipt -->
+    {% if session.stop_datetime and session.checkout %}
+      <!-- Completed & billed: print receipt -->
       <button class="btn btn-print" onclick="window.print()">
         🖨 Print Receipt
       </button>
       <a href="#" class="btn btn-ghost">← Back</a>
+
+    {% elif session.stop_datetime and not session.checkout %}
+      <!-- Stopped but not yet billed -->
+      <button class="btn btn-volt" onclick="triggerBilling()">
+        Bill Now
+      </button>
+      <a href="#" class="btn btn-ghost">← Back</a>
+
     {% else %}
       <!-- Ongoing: stop session -->
       <button class="btn btn-stop" onclick="openStopModal()">

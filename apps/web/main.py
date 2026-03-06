@@ -1,6 +1,7 @@
 from pathlib import Path
 import traceback
 from uuid import UUID
+from datetime import datetime
 
 
 from fastapi import APIRouter, Request, Depends, HTTPException
@@ -35,6 +36,7 @@ BASE_DIR = Path(__file__).resolve().parent
 SETTINGS = config.GlobalSettings()
 
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+templates.env.filters["strftime"] = lambda dt, fmt: dt.strftime(fmt) if dt else "—"
 
 
 @router.get("/")
@@ -238,6 +240,7 @@ async def session_view(
             return not_found()
 
         context["session"] = bike_session
+        context["str"] = str
         context["shop"] = bike_session.bike.shop
         context["user"] = user
 

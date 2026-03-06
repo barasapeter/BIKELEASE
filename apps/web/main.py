@@ -214,8 +214,8 @@ async def session_view(
 
         query = (
             db.query(BikeSession)
-            .join(BikeSession.bike)  # Session -> Bike
-            .join(Bike.shop)  # Bike -> Shop
+            .join(BikeSession.bike)
+            .join(Bike.shop)
             .options(
                 joinedload(BikeSession.customer),
                 joinedload(BikeSession.bike).joinedload(Bike.shop),
@@ -234,13 +234,12 @@ async def session_view(
         bike_session = query.first()
 
         if bike_session is None:
-            # covers both:
-            # - session does not exist
-            # - session exists but user is not allowed to access it
             return not_found()
 
         context["session"] = bike_session
         context["str"] = str
+        context["duration"] = "dummy"
+        context["amount"] = "dummy"
         context["shop"] = bike_session.bike.shop
         context["user"] = user
 

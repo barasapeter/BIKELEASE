@@ -291,15 +291,18 @@
   .session-link {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     margin-top: 20px;
     font-family: 'Space Mono', monospace;
     font-size: 11px;
     letter-spacing: 1px;
     text-decoration: none;
-    padding: 9px 18px;
+    padding: 12px 21px;
     border-radius: 8px;
     font-weight: 700;
+    margin: 20px auto 0;
+    display: flex;
   }
 
   .session-link::after {
@@ -312,8 +315,17 @@
     color: var(--asphalt);
   }
 
+  .session-card.active-card .session-link.secondary {
+    background: var(--sky);
+    color: var(--asphalt);
+  }
+
   .session-card.active-card .session-link:hover {
     background: var(--volt-dim);
+  }
+
+  .session-card.active-card .session-link.secondary:hover {
+    background: var(--sky-dim);
   }
 
   .session-card.past-card .session-link {

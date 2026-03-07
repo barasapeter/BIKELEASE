@@ -110,7 +110,7 @@
         <div class="live-cell">
           <div class="live-label"><span class="live-indicator"></span>Duration</div>
           <div class="live-value" id="live-duration">00:00</div>
-          <div class="live-unit">minutes : seconds</div>
+          <div class="live-unit">Progressive</div>
         </div>
         <div class="live-cell">
           <div class="live-label"><span class="live-indicator"></span>Amount Due</div>
@@ -254,33 +254,77 @@
 <script>
   {% if not session.stop_datetime %}
   // ── LIVE TICKER ──
-  const RPM        = parseFloat("{{ session.rpm_on_allocate }}") || 0;
-  const startRaw   = "{{ session.start_datetime }}";
-  const startTime  = new Date(startRaw);
+  const RPM       = parseFloat("{{ session.rpm_on_allocate }}") || 0;
+  const startRaw  = "{{ session.start_datetime }}";
+  const startTime = new Date(startRaw);
 
-  function pad(n) { return String(n).padStart(2, '0'); }
+  function pad(n) {
+    return String(n).padStart(2, '0');
+  }
+
+  function formatDuration(totalSeconds) {
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    // Show only the units that have been reached
+    if (days > 0) {
+      return `${days}:${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+    }
+
+    if (hours > 0) {
+      return `${hours}:${pad(minutes)}:${pad(seconds)}`;
+    }
+
+    if (minutes > 0) {
+      return `${minutes}:${pad(seconds)}`;
+    }
+
+    return `${seconds}s`;
+  }
+
+  function formatModalDuration(totalSeconds) {
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    if (days > 0) {
+      return `${days} day${days !== 1 ? 's' : ''} ${hours} hr ${minutes} min ${seconds} sec`;
+    }
+
+    if (hours > 0) {
+      return `${hours} hr ${minutes} min ${seconds} sec`;
+    }
+
+    if (minutes > 0) {
+      return `${minutes} min ${seconds} sec`;
+    }
+
+    return `${seconds} sec`;
+  }
 
   function tick() {
-    const now     = new Date();
-    const diffMs  = now - startTime;
+    const now = new Date();
+    const diffMs = now - startTime;
     const diffSec = Math.max(0, Math.floor(diffMs / 1000));
-    const mins    = Math.floor(diffSec / 60);
-    const secs    = diffSec % 60;
-    const amount  = (mins + secs / 60) * RPM;
 
-    document.getElementById('live-duration').textContent = pad(mins) + ':' + pad(secs);
-    document.getElementById('live-amount').textContent   = 'KES ' + amount.toFixed(2);
+    const amount = (diffSec / 60) * RPM;
+
+    document.getElementById('live-duration').textContent = formatDuration(diffSec);
+    document.getElementById('live-amount').textContent = 'KES ' + amount.toFixed(2);
 
     // keep modal preview in sync
     const mDur = document.getElementById('modal-duration');
     const mAmt = document.getElementById('modal-amount');
-    if (mDur) mDur.textContent = mins + ' min ' + secs + ' sec';
+
+    if (mDur) mDur.textContent = formatModalDuration(diffSec);
     if (mAmt) mAmt.textContent = 'KES ' + amount.toFixed(2);
   }
 
   tick();
   setInterval(tick, 1000);
-
   // ── MODAL ──
   function openStopModal() {
     document.getElementById('stop-modal').classList.add('open');

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Bike — Fleet Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.14.5/sweetalert2.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.14.5/sweetalert2.all.min.js"></script>
+<link rel="stylesheet" href="/static/css/bike.css">
+
+</head>
+<body>
+
+<div class="page-wrap">
+  <!-- <div class="page-header">
+    <div class="breadcrumb">Fleet <span>/</span> Add Bike</div>
+    <div class="page-title">NEW<br><em>BIKE</em></div>
+    <p class="page-sub">Register a new bike to your fleet. All fields are required before the unit can be activated for leasing.</p>
+  </div> -->
+
+  <div class="form-card">
+
+    <!-- AUTO-GENERATED BIKE CODE -->
+    <div class="bike-code-block">
+      <div>
+        <div class="bike-code-eyebrow">Auto-assigned bike code</div>
+        <div class="bike-code-value" id="bikeCodeDisplay">---</div>
+      </div>
+      <button class="btn-regen" id="regenBtn" onclick="regenCode()" style="display: none;">
+        <span class="regen-icon" id="regenIcon">↻</span>
+        New code
+      </button>
+    </div>
+
+    <div class="field-group">
+
+      <div class="field">
+        <label>Nickname <span class="required">*</span></label>
+        <input type="text" id="nickname" placeholder="e.g. Swara" autocomplete="off">
+        <input type="hidden" value="{{ shop_id }}" id="shopIdHiddenInput">
+        <span class="field-hint">A friendly display name shown to customers.</span>
+        <span class="field-error" id="err_nickname">⚠ Nickname is required</span>
+      </div>
+
+      <div class="field">
+        <label>Rate Per Minute (RPM) <span class="required">*</span></label>
+        <input type="number" id="rpm" placeholder="e.g. 2" autocomplete="off">
+        <span class="field-hint">Billing rate in your base currency per minute of active lease.</span>
+        <span class="field-error" id="err_rpm">⚠ RPM must be a valid integer</span>
+      </div>
+
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="submit-area">
+      <button class="btn-primary" id="submitBtn" onclick="handleSubmit()">
+        <span class="btn-label">Review</span>
+        <div class="inline-spinner"></div>
+      </button>
+      <!-- <button class="btn-ghost" onclick="resetForm()">Clear Form</button> -->
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <div class="modal-icon">🛵</div>
+    <div class="modal-title">CONFIRM ADDITION</div>
+    <p class="modal-body">You're about to register this bike to your fleet. Please review the details — this action will make the unit available for leasing immediately.</p>
+
+    <div class="modal-summary">
+      <div class="summary-row">
+        <span class="summary-label">Bike Code</span>
+        <span class="summary-value code" id="s_bike_id">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Nickname</span>
+        <span class="summary-value" id="s_nickname">—</span>
+      </div>
+      <div class="summary-row" style="display: none;">
+        <span class="summary-label">Shop</span>
+        <span class="summary-value" id="s_shop_id">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Rate / Min</span>
+        <span class="summary-value" id="s_rpm">—</span>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" id="cancelBtn" onclick="closeModal()">Cancel</button>
+      <button class="btn-confirm" id="confirmBtn" onclick="confirmCreate()">
+        <span class="confirm-label" id="confirmLabel">Add Bike</span>
+        <div class="confirm-spinner" id="confirmSpinner"></div>
+      </button>
+    </div>
+  </div>
+</div>
+<script src="/static/js/bike.js"></script>
+</body>
+</html>

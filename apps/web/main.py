@@ -155,7 +155,31 @@ async def shop(
 
 
 @router.get("/bikes/{shop_id}")
-async def sessions(
+async def bikes(
+    shop_id: UUID,
+    request: Request,
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user_optional),
+):
+    context = {"request": request, "shop": shop_id}
+    try:
+        if user is None:
+            return RedirectResponse(url="/login")
+
+        context["shop_id"] = shop_id
+        shop = db.query(Shop).filter(Shop.id == shop_id).first()
+        context["bikes"] = shop.bikes
+
+        return templates.TemplateResponse("bikes.html", context)
+    except Exception:
+        context["status_code"] = 500
+        context["error_title"] = "Internal Server Error"
+        context["traceback"] = traceback.format_exc()
+        return templates.TemplateResponse("error.html", context)
+
+
+@router.get("/bike/{shop_id}")
+async def bike(
     shop_id: UUID,
     request: Request,
     user=Depends(get_current_user_optional),
@@ -166,7 +190,7 @@ async def sessions(
             return RedirectResponse(url="/login")
 
         context["shop_id"] = shop_id
-        return templates.TemplateResponse("bikes.html", context)
+        return templates.TemplateResponse("bike.html", context)
     except Exception:
         context["status_code"] = 500
         context["error_title"] = "Internal Server Error"

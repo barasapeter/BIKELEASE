@@ -1,0 +1,376 @@
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --asphalt:    #0F1014;
+    --carbon:     #1C1E26;
+    --steel:      #2A2D38;
+    --smoke:      #4A4F63;
+    --mist:       #8A8FA8;
+    --chalk:      #F0F0F5;
+    --white:      #FFFFFF;
+    --volt:       #C8F400;
+    --volt-dim:   #9BBF00;
+    --ember:      #FF4D1C;
+    --ember-dim:  #CC3C14;
+    --sky:        #38B6FF;
+    --sky-dim:    #1A8FCC;
+  }
+
+  body {
+    background: var(--asphalt);
+    color: var(--chalk);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 48px 24px;
+  }
+
+  .page-wrap { width: 100%; max-width: 580px; }
+  .page-header { margin-bottom: 36px; }
+
+  .breadcrumb {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--smoke);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .breadcrumb span { color: var(--mist); }
+
+  .page-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 56px;
+    line-height: 0.9;
+    letter-spacing: 2px;
+    color: var(--chalk);
+  }
+  .page-title em { font-style: normal; color: var(--sky); }
+
+  .page-sub {
+    margin-top: 14px;
+    font-size: 14px;
+    color: var(--mist);
+    line-height: 1.65;
+  }
+
+  /* ── FORM CARD ── */
+  .form-card {
+    background: var(--carbon);
+    border: 1px solid var(--steel);
+    border-radius: 20px;
+    padding: 36px;
+    position: relative;
+    overflow: hidden;
+  }
+  .form-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--sky), var(--sky-dim), transparent);
+  }
+
+  /* ── BIKE CODE BLOCK ── */
+  .bike-code-block {
+    background: var(--asphalt);
+    border: 1px solid var(--steel);
+    border-radius: 12px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    gap: 12px;
+  }
+
+  .bike-code-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--smoke);
+    margin-bottom: 6px;
+  }
+
+  .bike-code-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--chalk);
+    letter-spacing: 3px;
+    transition: opacity 0.15s;
+  }
+  .bike-code-value.refreshing { opacity: 0.25; }
+
+  .btn-regen {
+    background: var(--steel);
+    border: none;
+    border-radius: 8px;
+    color: var(--mist);
+    cursor: pointer;
+    padding: 9px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.2s, color 0.2s;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .btn-regen:hover { background: var(--smoke); color: var(--chalk); }
+
+  .regen-icon {
+    display: inline-block;
+    transition: transform 0.35s ease;
+  }
+  .btn-regen.spinning .regen-icon { transform: rotate(360deg); }
+
+  /* ── FIELDS ── */
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    margin-bottom: 28px;
+  }
+
+  .field { display: flex; flex-direction: column; gap: 8px; }
+
+  .field label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--mist);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .field label .required { color: var(--ember); font-size: 12px; line-height: 1; }
+
+  .field input {
+    background: var(--asphalt);
+    border: 1px solid var(--steel);
+    border-radius: 10px;
+    color: var(--chalk);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    padding: 13px 16px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+    -moz-appearance: textfield;
+  }
+  .field input::-webkit-outer-spin-button,
+  .field input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .field input::placeholder { color: var(--smoke); }
+  .field input:focus { border-color: var(--sky); box-shadow: 0 0 0 3px rgba(56,182,255,0.12); }
+  .field input.error { border-color: var(--ember); box-shadow: 0 0 0 3px rgba(255,77,28,0.12); }
+
+  .field-hint { font-size: 12px; color: var(--smoke); line-height: 1.5; }
+
+  .field-error {
+    font-size: 12px;
+    color: var(--ember);
+    display: none;
+    align-items: center;
+    gap: 5px;
+  }
+  .field-error.visible { display: flex; }
+
+  /* ── DIVIDER ── */
+  .divider { height: 1px; background: var(--steel); margin: 4px 0 28px; }
+
+  /* ── BUTTONS ── */
+  .submit-area { display: flex; flex-direction: column; gap: 12px; }
+
+  .btn-primary {
+    width: 100%;
+    padding: 15px 32px;
+    background: var(--sky);
+    color: var(--asphalt);
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary:hover:not(:disabled) { background: var(--sky-dim); transform: translateY(-1px); }
+  .btn-primary:active:not(:disabled) { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary .btn-label { transition: opacity 0.2s; }
+  .btn-primary.loading .btn-label { opacity: 0; }
+  .btn-primary.loading .inline-spinner { display: block; position: absolute; }
+
+  .btn-ghost {
+    width: 100%;
+    padding: 13px 32px;
+    background: transparent;
+    color: var(--mist);
+    border: 1px solid var(--steel);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--mist); color: var(--chalk); }
+
+  /* ── SPINNER ── */
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .inline-spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(15,16,20,0.25);
+    border-top-color: var(--asphalt);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+
+  .confirm-spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.25);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(15,16,20,0.88);
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px; z-index: 100;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--carbon);
+    border: 1px solid var(--steel);
+    border-radius: 20px;
+    padding: 36px;
+    width: 100%; max-width: 440px;
+    position: relative;
+    transform: translateY(16px) scale(0.98);
+    transition: transform 0.25s ease;
+  }
+  .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+  .modal::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--ember), var(--ember-dim), transparent);
+    border-radius: 20px 20px 0 0;
+  }
+
+  .modal-icon {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    background: rgba(255,77,28,0.12);
+    border: 1px solid rgba(255,77,28,0.25);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px;
+    font-size: 22px;
+  }
+
+  .modal-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 30px; letter-spacing: 1px;
+    color: var(--chalk); margin-bottom: 10px;
+  }
+
+  .modal-body { font-size: 14px; color: var(--mist); line-height: 1.65; margin-bottom: 24px; }
+
+  .modal-summary {
+    background: var(--asphalt);
+    border: 1px solid var(--steel);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 24px;
+    display: flex; flex-direction: column; gap: 11px;
+  }
+
+  .summary-row { display: flex; align-items: center; justify-content: space-between; }
+  .summary-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--smoke);
+  }
+  .summary-value { font-size: 14px; font-weight: 600; color: var(--chalk); }
+  .summary-value.code {
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 2px; color: var(--sky);
+  }
+
+  .modal-actions { display: flex; gap: 12px; }
+
+  .btn-confirm {
+    flex: 1; padding: 13px 24px;
+    background: var(--ember); color: var(--white);
+    border: none; border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: background 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    position: relative;
+  }
+  .btn-confirm:hover:not(:disabled) { background: var(--ember-dim); }
+  .btn-confirm:disabled { opacity: 0.6; cursor: not-allowed; }
+  .btn-confirm .confirm-label { transition: opacity 0.15s; }
+  .btn-confirm.loading .confirm-label { opacity: 0; }
+  .btn-confirm.loading .confirm-spinner { display: block; position: absolute; }
+
+  .btn-cancel {
+    flex: 1; padding: 13px 24px;
+    background: transparent; color: var(--mist);
+    border: 1px solid var(--steel); border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 500;
+    cursor: pointer; transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-cancel:hover:not(:disabled) { border-color: var(--mist); color: var(--chalk); }
+  .btn-cancel:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── SWEETALERT2 TOAST OVERRIDES ── */
+  .swal-toast-popup {
+    border: 1px solid #2A2D38 !important;
+    border-radius: 14px !important;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5) !important;
+    padding: 14px 18px !important;
+    font-family: 'DM Sans', sans-serif !important;
+  }
+  .swal-toast-title {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #F0F0F5 !important;
+    font-family: 'DM Sans', sans-serif !important;
+  }
+  .swal-toast-progress { background: #2A2D38 !important; }
+
+  @media (max-width: 480px) {
+    body { padding: 24px 16px; }
+    .form-card { padding: 24px 20px; }
+    .modal { padding: 28px 20px; }
+    .toast { left: 16px; right: 16px; bottom: 20px; max-width: none; }
+  }

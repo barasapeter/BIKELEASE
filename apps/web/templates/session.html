@@ -229,7 +229,7 @@
 {% endif %}
 
 <!-- TRIGGER BILLING DIALOG -->
-{% if session.stop_datetime and not session.checkout %}
+{% if mpesastatus or session.stop_datetime and not session.checkout %}
 <div class="modal-overlay" id="billing-modal">
   <div class="modal">
     <div class="modal-icon">💵</div>
@@ -405,7 +405,7 @@
   });
   {% endif %}
 
-  {% if session.stop_datetime and not session.checkout %}
+  {% if mpesastatus or session.stop_datetime and not session.checkout %}
   function openBillingModal() {
     document.getElementById('billing-modal').classList.add('open');
   }

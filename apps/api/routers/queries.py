@@ -8,7 +8,7 @@ from core import config
 from core.security import get_current_user
 
 
-from sqlalchemy.orm import Session
+from utils import format_duration_progressive
 
 import logging
 import traceback
@@ -74,12 +74,14 @@ async def query_all(
                 "start": s.start_datetime,
                 "stop": s.stop_datetime,
                 "duration": (
-                    f"{s.checkout.duration_in_minutes} minute{"s" if s.checkout.duration_in_minutes > 1 else ""}"
+                    format_duration_progressive(s.checkout.duration_in_minutes)
                     if s.checkout
                     else "ongoing"
                 ),
                 "amount": round(s.checkout.amount_paid) if s.checkout else "null",
-                "action": "print" if s.checkout and round(s.checkout.amount_paid) else "stop",
+                "action": (
+                    "print" if s.checkout and round(s.checkout.amount_paid) else "stop"
+                ),
             }
             for s in sessions
         ]

@@ -3,6 +3,23 @@ from typing import Optional
 from core.errors import InvalidPhoneNumberException
 
 
+def format_duration_progressive(total_minutes: int) -> str:
+    total_seconds = int(total_minutes or .1 * 60)
+
+    days = total_seconds // 86400
+    hours = (total_seconds % 86400) // 3600
+    minutes = (total_seconds % 3600) // 60
+    seconds = total_seconds % 60
+
+    if days > 0:
+        return f"{days}d {hours}h {minutes}m"
+    if hours > 0:
+        return f"{hours}h {minutes}m"
+    if minutes > 0:
+        return f"{minutes}m"
+    return f"{seconds}s"
+
+
 def normalize_and_validate_phone_number_ke(phone_number: Optional[str]) -> str:
     if not phone_number:
         raise ValueError("Phone number is required.")

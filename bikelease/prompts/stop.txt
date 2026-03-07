@@ -1,0 +1,73 @@
+i have ths api:
+```
+@router.patch("/stop-session")
+async def stop_session(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    try:
+        payload = await request.json()
+
+        session_id = payload.get("session_id")
+
+        if not session_id:
+            raise HTTPException(status_code=422, detail="Missing session ID.")
+
+        bikesession = db.query(BikeSession).filter(BikeSession.id == session_id).first()
+        if not bikesession:
+            raise HTTPException(status_code=400, detail="Invalid session ID")
+
+        if bikesession.stop_datetime:
+            raise HTTPException(status_code=409, detail="Session was already stopped.")
+
+        bike = bikesession.bike
+
+        bikesession.stop_datetime = func.now()
+
+        new_meta = dict(bike.metadata_e or {})
+        del new_meta["leasedto"]
+        new_meta["bikestate"] = "AVAILABLE"
+        bike.metadata_e = new_meta
+
+        db.add(bike)
+        db.add(bikesession)
+        db.commit()
+        db.refresh(bike)
+        db.refresh(bikesession)
+        return {"detail": "Session stopped successfully."}
+
+    except HTTPException:
+        raise
+    except Exception:
+        logger.error(f"{request.url.path}\n{traceback.format_exc()}\n\n")
+        raise HTTPException(status_code=422, detail="Something went wrong.")
+```
+
+url prefix is /customers/v1
+
+i am having a frontend client that needs to interact with it. here is the current stop session logic:
+
+```
+function confirmStop() {
+    // POST to your FastAPI stop endpoint
+    fetch('/sessions/stop', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: "{{ session.id }}" })
+    })
+    .then(r => {
+      if (r.ok) { window.location.reload(); }
+      else { alert('Failed to stop session. Please try again.'); }
+    })
+    .catch(() => alert('Network error. Please try again.'));
+  }
+```
+
+it has a few issues: 
+1. the api url is wrong
+2. it uses native dialogs, i prefer sweet alert dialogs (in dark mode) (i already have the cdn)
+4. it does not prompt if the user is sure he wants to stop the session by calling the API, this prevents accidental modifications.
+5. it does not have loadstate.
+
+i need you to create it for me nicely. if the server returns OK, display the output and refresh after the feedback dialog is closed. can you do that for me within the client js function?

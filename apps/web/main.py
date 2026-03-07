@@ -3,6 +3,7 @@ import traceback
 from uuid import UUID
 from datetime import datetime
 
+from utils import format_duration_progressive
 
 from fastapi import APIRouter, Request, Depends, HTTPException
 from fastapi.templating import Jinja2Templates
@@ -17,6 +18,8 @@ from data.models import (
     Bike,
     Session as BikeSession,
     SessionCheckout,
+    MpesaCheckout,
+    MpesaTransactionStatus,
 )
 
 from core import config
@@ -239,8 +242,12 @@ async def session_view(
         start = bike_session.start_datetime
         stop = bike_session.stop_datetime
 
-        duration = (stop - start).total_seconds() / 60 if stop else "ongoing" # minutes as float
-        duration = max(0, duration) if stop else "ongoing"  # avoid negatives if clocks/data are weird
+        duration = (
+            (stop - start).total_seconds() / 60 if stop else "ongoing"
+        )  # minutes as float
+        duration = (
+            max(0, duration) if stop else "ongoing"
+        )  # toavoid negatives if clocks/data are weird
 
         amount = round(duration * bike_session.rpm_on_allocate) if stop else None
 
@@ -250,6 +257,47 @@ async def session_view(
         context["amount"] = amount
         context["shop"] = bike_session.bike.shop
         context["user"] = user
+        context["fmt"] = format_duration_progressive
+        context["mpesastatus"] = None
+
+        session_checkout = bike_session.checkout
+        if session_checkout:
+            session_checkout = bike_session.checkout
+            pending = (
+                db.query(MpesaCheckout)
+                .filter(
+                    MpesaCheckout.session_checkout_id == session_checkout.id,
+                    MpesaCheckout.transaction_status_enum
+                    == MpesaTransactionStatus.PENDING,
+                )
+                .first()
+            )
+            if pending:
+                context["mpesastatus"] = "pending"
+
+            success = (
+                db.query(MpesaCheckout)
+                .filter(
+                    MpesaCheckout.session_checkout_id == session_checkout.id,
+                    MpesaCheckout.transaction_status_enum
+                    == MpesaTransactionStatus.SUCCESS,
+                )
+                .first()
+            )
+            if success:
+                context["mpesastatus"] = "success"
+
+            failed = (
+                db.query(MpesaCheckout)
+                .filter(
+                    MpesaCheckout.session_checkout_id == session_checkout.id,
+                    MpesaCheckout.transaction_status_enum
+                    == MpesaTransactionStatus.FAILED,
+                )
+                .first()
+            )
+            if failed:
+                context["mpesastatus"] = "failed"
 
         return templates.TemplateResponse("session.html", context)
 

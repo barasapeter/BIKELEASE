@@ -239,7 +239,7 @@
   .data-value.volt  { color: var(--volt); }
   .data-value.ember { color: var(--ember); }
   .data-value.sky   { color: var(--sky); }
-  .data-value.large {
+  .data-value.large { 
     font-family: 'Bebas Neue', sans-serif;
     font-size: 28px;
     letter-spacing: 1px;

@@ -118,7 +118,7 @@ class MpesaAPI:
         except Exception as e:
             return {
                 "success": False,
-                "detail": str(e),
+                "detail": {"errorMessage": str(e)},
                 "trace": traceback.format_exc(),
                 "status_code": 500,
             }

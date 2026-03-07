@@ -128,7 +128,7 @@
       <div class="data-grid">
         <div class="data-cell">
           <div class="data-label">Duration</div>
-          <div class="data-value large volt">{{ session.checkout.duration_in_minutes }} <small style="font-size:14px;font-family:'DM Sans';color:var(--mist)">min</small></div>
+          <div class="data-value volt" style="text-transform: lowercase;">{{ fmt(session.checkout.duration_in_minutes) }}<small style="font-size:14px;font-family:'DM Sans';color:var(--mist)"></small></div>
         </div>
         <div class="data-cell">
           <div class="data-label">Amount Billed</div>
@@ -164,25 +164,32 @@
   <!-- ── ACTION ROW ── -->
   <div class="actions-row">
     {% if session.stop_datetime and session.checkout %}
-      <!-- Completed & billed: print receipt -->
+    <!-- check if it is mpesa -->
+    {% if mpesastatus %}
+      {% if mpesastatus == "success" %}
       <button class="btn btn-print" onclick="window.print()">
         🖨 Print Receipt
       </button>
-      <!-- <a href="#" class="btn btn-ghost">← Back</a> -->
-
-    {% elif session.stop_datetime and not session.checkout %}
-      <!-- Stopped but not yet billed -->
+      {% elif mpesastatus == "pending" or mpesastatus == "failed" %}
       <button class="btn btn-volt" onclick="openBillingModal()">
         Bill Now
       </button>
-      <!-- <a href="#" class="btn btn-ghost">← Back</a> -->
+      {% endif %}
+    {% endif %}
+    {% if session.checkout.amount_paid > 0 %}
+    <button class="btn btn-print" onclick="window.print()">
+      🖨 Print Receipt
+    </button>
+    {% endif %}
 
+    {% elif session.stop_datetime and not session.checkout %}
+      <button class="btn btn-volt" onclick="openBillingModal()">
+        Bill Now
+      </button>
     {% else %}
-      <!-- Ongoing: stop session -->
       <button class="btn btn-stop" onclick="openStopModal()">
         ⏹ Stop &amp; Bill
       </button>
-      <!-- <a href="#" class="btn btn-ghost">← Back</a> -->
     {% endif %}
   </div>
 
@@ -333,19 +340,63 @@
     document.getElementById('stop-modal').classList.remove('open');
   }
   function confirmStop() {
-    // POST to your FastAPI stop endpoint
-    fetch('/sessions/stop', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ session_id: "{{ session.id }}" })
-    })
-    .then(r => {
-      if (r.ok) { window.location.reload(); }
-      else { alert('Failed to stop session. Please try again.'); }
-    })
-    .catch(() => alert('Network error. Please try again.'));
-  }
+  Swal.fire({
+    title: 'Stop Session?',
+    text: 'Are you sure you want to stop this session? This action cannot be undone.',
+    icon: 'warning',
+    theme: 'dark',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Yes, stop it',
+    cancelButtonText: 'Cancel',
+  }).then((result) => {
+    if (!result.isConfirmed) return;
 
+    Swal.fire({
+      title: 'Stopping session...',
+      theme: 'dark',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => Swal.showLoading(),
+    });
+
+    fetch('/customers/v1/stop-session', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: "{{ session.id }}" }),
+    })
+    .then(async (r) => {
+      const data = await r.json();
+      if (r.ok) {
+        Swal.fire({
+          title: 'Session Stopped',
+          text: data.detail || 'Session stopped successfully.',
+          icon: 'success',
+          theme: 'dark',
+          confirmButtonColor: '#3b82f6',
+        }).then(() => window.location.reload());
+      } else {
+        Swal.fire({
+          title: 'Error',
+          text: data.detail || 'Failed to stop session. Please try again.',
+          icon: 'error',
+          theme: 'dark',
+          confirmButtonColor: '#3b82f6',
+        });
+      }
+    })
+    .catch(() => {
+      Swal.fire({
+        title: 'Network Error',
+        text: 'Could not reach the server. Please check your connection.',
+        icon: 'error',
+        theme: 'dark',
+        confirmButtonColor: '#3b82f6',
+      });
+    });
+  });
+}
   
 
   // close modal on overlay click

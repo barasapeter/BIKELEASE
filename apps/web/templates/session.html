@@ -128,7 +128,7 @@
       <div class="data-grid">
         <div class="data-cell">
           <div class="data-label">Duration</div>
-          <div class="data-value volt" style="text-transform: lowercase;">{{ fmt(session.checkout.duration_in_minutes) }}<small style="font-size:14px;font-family:'DM Sans';color:var(--mist)"></small></div>
+          <div class="data-value large volt" style="text-transform: lowercase;">{{ session.checkout.duration_in_minutes or duration }}<small style="font-size:14px;font-family:'DM Sans';color:var(--mist)">min</small></div>
         </div>
         <div class="data-cell">
           <div class="data-label">Amount Billed</div>
@@ -168,7 +168,7 @@
     {% if mpesastatus %}
       {% if mpesastatus == "success" %}
       <button class="btn btn-print" onclick="window.print()">
-        🖨 Print Receipt
+        🖨 Print Receipt - MPESA
       </button>
       {% elif mpesastatus == "pending" or mpesastatus == "failed" %}
       <button class="btn btn-volt" onclick="openBillingModal()">

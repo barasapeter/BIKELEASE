@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Request, HTTPException
 from fastapi.responses import JSONResponse
+import uuid
 
 
 from data.db import get_db
@@ -141,14 +142,16 @@ async def create_session(
         if bikesession and bike.metadata_e.get("leasedto") == customer_id:
             raise HTTPException(status_code=409, detail="Bike already leased.")
 
+        bike_id = uuid.uuid4()
         bikesession: BikeSession = BikeSession(
+            id=bike_id,
             customer_id=customer.id,
             bike_id=bike.id,
             rpm_on_allocate=bike.rate_per_minute,
             start_datetime=func.now(),
         )
         new_meta = dict(bike.metadata_e or {})
-        new_meta["leasedto"] = customer_id
+        new_meta["leasedto"] = str(bike_id)
         new_meta["bikestate"] = "LEASED"
         bike.metadata_e = new_meta
 

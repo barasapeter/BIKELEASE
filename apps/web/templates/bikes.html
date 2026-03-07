@@ -1,5 +1,428 @@
-<h1>Bikes</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fleet — BikeLease</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-{% for bike in bikes %}
-<h2>{{ bike }}</h2>
-{% endfor %}
+  :root {
+    --asphalt:   #0F1014;
+    --carbon:    #1C1E26;
+    --steel:     #2A2D38;
+    --smoke:     #4A4F63;
+    --mist:      #8A8FA8;
+    --chalk:     #F0F0F5;
+    --white:     #FFFFFF;
+    --volt:      #C8F400;
+    --volt-dim:  #9BBF00;
+    --ember:     #FF4D1C;
+    --ember-dim: #CC3C14;
+    --sky:       #38B6FF;
+    --sky-dim:   #1A8FCC;
+  }
+
+  body {
+    background: var(--asphalt);
+    color: var(--chalk);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER STRIP ── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 48px;
+    border-bottom: 1px solid var(--steel);
+    position: sticky;
+    top: 0;
+    background: rgba(15, 16, 20, 0.92);
+    backdrop-filter: blur(14px);
+    z-index: 100;
+  }
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 3px;
+    color: var(--chalk);
+  }
+  .logo em { color: var(--sky); font-style: normal; }
+  .topbar-right {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--smoke);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .topbar-right span {
+    color: var(--chalk);
+    background: var(--steel);
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-left: 8px;
+  }
+
+  /* ── PAGE TITLE ── */
+  .page-head {
+    padding: 64px 48px 40px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    border-bottom: 1px solid var(--steel);
+  }
+  .page-title-block {}
+  .overtitle {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--sky);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .page-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(56px, 7vw, 88px);
+    line-height: 0.92;
+    letter-spacing: 1px;
+  }
+  .count-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--mist);
+    padding: 6px 14px;
+    border: 1px solid var(--steel);
+    border-radius: 99px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    align-self: center;
+  }
+  .count-badge strong { color: var(--chalk); }
+
+  /* ── GRID ── */
+  .fleet-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1px;
+    background: var(--steel);
+    border-top: 1px solid var(--steel);
+  }
+
+  /* ── BIKE CARD ── */
+  .bike-card {
+    background: var(--asphalt);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.25s ease;
+  }
+  .bike-card:hover {
+    background: var(--carbon);
+  }
+
+  /* Photo area */
+  .bike-photo-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--carbon);
+  }
+  .bike-photo-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    filter: grayscale(20%) contrast(1.05);
+  }
+  .bike-card:hover .bike-photo-wrap img {
+    transform: scale(1.05);
+  }
+
+  /* Photo overlay gradient */
+  .bike-photo-wrap::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 50%;
+    background: linear-gradient(to top, rgba(15,16,20,0.9) 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  /* Rate chip on top of photo */
+  .rate-chip {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    z-index: 2;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--chalk);
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+    letter-spacing: 0.5px;
+  }
+  .rate-chip .amount {
+    font-size: 22px;
+    line-height: 1;
+    color: var(--white);
+  }
+  .rate-chip .per {
+    font-size: 10px;
+    color: var(--mist);
+    letter-spacing: 1px;
+  }
+
+  /* Index number */
+  .card-index {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 2;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--smoke);
+    letter-spacing: 1px;
+    background: rgba(15, 16, 20, 0.6);
+    padding: 3px 8px;
+    border-radius: 3px;
+  }
+
+  /* Info area */
+  .bike-info {
+    padding: 24px 24px 0;
+    flex: 1;
+  }
+  .bike-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 1px;
+    color: var(--chalk);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .bike-name-unnamed {
+    font-family: 'DM Sans', sans-serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 18px;
+    color: var(--smoke);
+  }
+  .bike-meta {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--smoke);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* Divider */
+  .card-divider {
+    height: 1px;
+    background: var(--steel);
+    margin: 20px 24px;
+  }
+
+  /* Actions */
+  .bike-actions {
+    padding: 0 24px 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 11px 18px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.18s ease;
+  }
+  .btn-sessions {
+    background: transparent;
+    color: var(--sky);
+    border: 1px solid var(--sky);
+    opacity: 0.85;
+  }
+  .btn-sessions:hover {
+    background: rgba(56, 182, 255, 0.1);
+    opacity: 1;
+  }
+  .btn-edit {
+    background: var(--steel);
+    color: var(--chalk);
+    border: 1px solid transparent;
+  }
+  .btn-edit:hover {
+    background: var(--smoke);
+    color: var(--white);
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 120px 48px;
+    text-align: center;
+    gap: 16px;
+  }
+  .empty-icon {
+    font-size: 64px;
+    opacity: 0.12;
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 6px;
+    color: var(--chalk);
+  }
+  .empty-state p {
+    color: var(--smoke);
+    font-size: 14px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 1px;
+  }
+
+  /* ── FOOTER ── */
+  .page-footer {
+    padding: 32px 48px;
+    border-top: 1px solid var(--steel);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .footer-note {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--smoke);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* ── STAGGER ANIMATION ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .bike-card {
+    animation: fadeUp 0.4s ease both;
+  }
+  {% for bike in bikes %}
+  .bike-card:nth-child({{ loop.index }}) { animation-delay: {{ (loop.index0 * 0.06)|round(2) }}s; }
+  {% endfor %}
+
+  @media (max-width: 640px) {
+    .topbar { padding: 14px 20px; }
+    .page-head { padding: 40px 20px 28px; flex-direction: column; align-items: flex-start; }
+    .fleet-grid { grid-template-columns: 1fr; }
+    .page-footer { flex-direction: column; gap: 12px; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="topbar" style="display: none;">
+  <div class="logo">BIKE<em>LEASE</em></div>
+  <div class="topbar-right">
+    Fleet
+    <span>{{ bikes | length }} unit{{ 's' if bikes | length != 1 else '' }}</span>
+  </div>
+</header>
+
+<!-- PAGE HEADING -->
+<div class="page-head">
+  <div class="page-title-block">
+    <div class="overtitle">Active Fleet</div>
+    <h1 class="page-title">MY BIKES</h1>
+  </div>
+  <div class="count-badge">
+    <strong>{{ bikes | length }}</strong> bike{{ 's' if bikes | length != 1 else '' }} registered
+    <button onclick="window.location.href='/bike/{{ shop_id }}'" style="padding-left: 8px; padding-right: 8px; border-radius: 8px; cursor: pointer;">Add New</button>
+  </div>
+</div>
+
+<!-- GRID -->
+{% if bikes %}
+<div class="fleet-grid">
+  {% for bike in bikes %}
+  <div class="bike-card">
+
+    <!-- Photo -->
+    <div class="bike-photo-wrap">
+      <img
+        src="{{ bike.metadata_e.get('photo', '/static/imgs/bike.png') }}"
+        alt="{{ bike.nickname or 'Bike ' + bike.id }}"
+        loading="lazy"
+      >
+      <div class="card-index">#{{ bike.id }}</div>
+      <div class="rate-chip">
+        <span class="amount">KES{{ bike.rate_per_minute }}</span>
+        <span class="per">/ MIN</span>
+      </div>
+    </div>
+
+    <!-- Info -->
+    <div class="bike-info">
+      {% if bike.nickname %}
+        <div class="bike-name">{{ bike.nickname }} - {{ bike.metadata_e.get("bikestate", "State Undefined") }}</div>
+      {% else %}
+        <div class="bike-name bike-name-unnamed">Unnamed bike</div>
+      {% endif %}
+      <div class="bike-meta">ID · {{ bike.id }}</div>
+    </div>
+
+    <div class="card-divider"></div>
+
+    <!-- Actions -->
+    <div class="bike-actions">
+      <a href="/bike/{{ shop_id }}?b={{ bike.id }}" class="btn btn-edit">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit
+      </a>
+      {% if bike.metadata_e.get('leasedto') %}
+      <a href="/session/{{  bike.metadata_e.get('leasedto', '00000000-e564-4177-97d6-982025e18b15') }}" class="btn btn-sessions">
+        <!-- <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> -->
+        In Session →
+      </a>
+      {% endif %}
+      
+    </div>
+
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon">NO BIKES</div>
+  <p>No bikes have been added to this fleet yet.</p>
+</div>
+{% endif %}
+
+<!-- FOOTER -->
+<footer class="page-footer">
+  <span class="footer-note">BikeLease Fleet Management</span>
+  <span class="footer-note">{{ bikes | length }} unit{{ 's' if bikes | length != 1 else '' }} total</span>
+</footer>
+
+</body>
+</html>

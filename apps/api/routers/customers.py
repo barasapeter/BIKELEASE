@@ -77,6 +77,10 @@ async def create_customer(
                 "detail": f"Customer exists",
                 "id": customer.id,
                 "name": customer.name,
+                "photo": customer.metadata_e.get(
+                    "photo", "/static/imgs/avatar.png"
+                ),  # if not exists, photo is default static avatar
+                "phone": customer.primary_phone,
                 "points": "Not Computed",
                 "sessions": previous_sessions,
                 "registration": {
@@ -98,7 +102,7 @@ async def create_customer(
         db.add(customer)
         db.commit()
         db.refresh(customer)
-        return {"detail": "Customer create successful."}
+        return {"detail": "Customer create successful.", "id": customer.id}
 
     except HTTPException:
         raise
@@ -160,7 +164,7 @@ async def create_session(
         db.commit()
         db.refresh(bike)
         db.refresh(bikesession)
-        return {"detail": "Session started successfully."}
+        return {"detail": "Session started successfully.", "id": bikesession.id}
 
     except HTTPException:
         raise

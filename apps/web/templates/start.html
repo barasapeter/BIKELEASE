@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIKELEASE — New Session</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --asphalt:   #0F1014;
+    --carbon:    #1C1E26;
+    --steel:     #2A2D38;
+    --smoke:     #4A4F63;
+    --mist:      #8A8FA8;
+    --chalk:     #F0F0F5;
+    --white:     #FFFFFF;
+    --ember:     #FF4D1C;
+    --ember-dim: #CC3C14;
+    --sky:       #38B6FF;
+    --sky-dim:   #1A8FCC;
+  }
+
+  body {
+    background: var(--asphalt);
+    color: var(--chalk);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── SIDE RAIL ── */
+  .rail {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, transparent, var(--sky) 30%, var(--sky-dim) 70%, transparent);
+    z-index: 10;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: relative;
+    z-index: 1;
+    padding: 28px 48px 24px;
+    border-bottom: 1px solid var(--steel);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 3px;
+    color: var(--chalk);
+  }
+  .logo em { color: var(--sky); font-style: normal; }
+  .header-meta {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--smoke);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .header-meta span { color: var(--mist); }
+  .live-dot {
+    width: 7px; height: 7px;
+    background: var(--sky);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+    display: inline-block;
+    margin-right: 6px;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.7); }
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .layout {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 0;
+    min-height: calc(100vh - 80px);
+  }
+
+  /* ── LEFT PANEL ── */
+  .panel-left {
+    padding: 56px 48px;
+    border-right: 1px solid var(--steel);
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+  .page-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(56px, 7vw, 88px);
+    line-height: 0.88;
+    letter-spacing: 2px;
+  }
+  .page-title .accent { color: var(--sky); display: block; }
+  .page-subtitle {
+    font-size: 14px;
+    color: var(--mist);
+    line-height: 1.8;
+    max-width: 400px;
+    margin-top: 12px;
+  }
+
+  /* ── FORM ── */
+  .form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 480px;
+  }
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .input-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--smoke);
+    text-transform: uppercase;
+  }
+  .input-wrap {
+    position: relative;
+  }
+  .input-wrap input {
+    width: 100%;
+    background: var(--carbon);
+    border: 1px solid var(--steel);
+    border-radius: 10px;
+    padding: 16px 20px;
+    color: var(--chalk);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .input-wrap input::placeholder { color: var(--smoke); }
+  .input-wrap input:focus {
+    border-color: var(--sky);
+    box-shadow: 0 0 0 3px rgba(56,182,255,0.12);
+  }
+  .input-wrap input:focus + .input-line { width: 100%; }
+  .input-line {
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 2px;
+    background: var(--sky);
+    width: 0;
+    border-radius: 0 0 10px 10px;
+    transition: width 0.3s ease;
+  }
+
+  /* ── SUBMIT BTN ── */
+  .btn-submit {
+    background: var(--sky);
+    color: var(--asphalt);
+    border: none;
+    border-radius: 10px;
+    padding: 17px 36px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: fit-content;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-submit:hover { background: var(--sky-dim); transform: translateY(-1px); }
+  .btn-submit:active { transform: translateY(0); }
+  .btn-submit:disabled {
+    background: var(--steel);
+    color: var(--smoke);
+    cursor: not-allowed;
+    transform: none;
+  }
+  .btn-submit .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(0,0,0,0.2);
+    border-top-color: var(--asphalt);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  .btn-submit.loading .spinner { display: block; }
+  .btn-submit.loading .btn-text { opacity: 0.6; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── STEP INDICATOR ── */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 480px;
+  }
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    opacity: 0.35;
+    transition: opacity 0.3s;
+  }
+  .step.active { opacity: 1; }
+  .step.done { opacity: 0.7; }
+  .step-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--steel);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+  .step.active .step-num {
+    border-color: var(--sky);
+    color: var(--sky);
+    box-shadow: 0 0 0 4px rgba(56,182,255,0.1);
+  }
+  .step.done .step-num {
+    background: var(--sky);
+    border-color: var(--sky);
+    color: var(--asphalt);
+    font-weight: 700;
+  }
+  .step-text { font-size: 13px; color: var(--mist); }
+  .step.active .step-text { color: var(--chalk); font-weight: 500; }
+  .step-connector {
+    width: 1px; height: 16px;
+    background: var(--steel);
+    margin-left: 14px;
+    transition: background 0.3s;
+  }
+  .step-connector.lit { background: var(--sky-dim); }
+
+  /* ── RIGHT PANEL ── */
+  .panel-right {
+    padding: 56px 40px;
+    background: var(--carbon);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .panel-right::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(56,182,255,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .panel-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--smoke);
+    text-transform: uppercase;
+  }
+
+  /* ── CUSTOMER CARD ── */
+  .customer-card {
+    background: var(--asphalt);
+    border: 1px solid var(--steel);
+    border-radius: 16px;
+    overflow: hidden;
+    display: none;
+    flex-direction: column;
+    transition: all 0.4s ease;
+  }
+  .customer-card.visible { display: flex; }
+
+  .card-header {
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    border-bottom: 1px solid var(--steel);
+    position: relative;
+  }
+
+  /* PHOTO */
+  .customer-photo {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: var(--steel);
+    overflow: hidden;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .customer-photo img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: none;
+  }
+  .customer-photo img.loaded { display: block; }
+  .customer-photo .photo-skel {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, var(--steel) 25%, var(--smoke) 50%, var(--steel) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+  }
+
+  .card-identity { flex: 1; min-width: 0; }
+  .customer-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 1px;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .customer-phone {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--mist);
+    margin-top: 4px;
+  }
+  .skel-line {
+    height: 14px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--steel) 25%, var(--smoke) 50%, var(--steel) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+  }
+  .skel-line.name { height: 20px; width: 70%; margin-bottom: 8px; }
+  .skel-line.phone { width: 50%; }
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  .status-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    border-radius: 20px;
+    display: none;
+  }
+  .status-badge.returning {
+    background: rgba(56,182,255,0.12);
+    color: var(--sky);
+    border: 1px solid rgba(56,182,255,0.2);
+  }
+  .status-badge.new-customer {
+    background: rgba(255,77,28,0.12);
+    color: var(--ember);
+    border: 1px solid rgba(255,77,28,0.2);
+  }
+
+  .card-stats {
+    padding: 20px 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .stat-item { display: flex; flex-direction: column; gap: 4px; }
+  .stat-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    line-height: 1;
+    color: var(--chalk);
+  }
+  .stat-lbl {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--smoke);
+    text-transform: uppercase;
+  }
+  .stat-val.skel-val {
+    height: 28px; width: 60%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--steel) 25%, var(--smoke) 50%, var(--steel) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+  }
+
+  /* ── SESSION FORM ── */
+  .session-form {
+    background: var(--asphalt);
+    border: 1px solid var(--steel);
+    border-radius: 16px;
+    padding: 24px;
+    display: none;
+    flex-direction: column;
+    gap: 20px;
+    animation: slideUp 0.35s ease;
+  }
+  .session-form.visible { display: flex; }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .session-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+    color: var(--chalk);
+  }
+
+  .bike-input-wrap {
+    position: relative;
+  }
+  .bike-input-wrap input {
+    width: 100%;
+    background: var(--carbon);
+    border: 1px solid var(--steel);
+    border-radius: 10px;
+    padding: 14px 18px;
+    color: var(--chalk);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    letter-spacing: 1px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .bike-input-wrap input::placeholder {
+    color: var(--smoke);
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0;
+  }
+  .bike-input-wrap input:focus {
+    border-color: var(--sky);
+    box-shadow: 0 0 0 3px rgba(56,182,255,0.1);
+  }
+
+  .btn-start-session {
+    background: var(--ember);
+    color: var(--white);
+    border: none;
+    border-radius: 10px;
+    padding: 15px 28px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .btn-start-session:hover { background: var(--ember-dim); transform: translateY(-1px); }
+  .btn-start-session:active { transform: translateY(0); }
+  .btn-start-session:disabled { background: var(--steel); color: var(--smoke); cursor: not-allowed; transform: none; }
+  .btn-start-session .spinner {
+    width: 15px; height: 15px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  .btn-start-session.loading .spinner { display: block; }
+  .btn-start-session.loading .btn-text { opacity: 0.6; }
+
+  /* ── TOAST SYSTEM ── */
+  .toast-container {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
+    pointer-events: none;
+  }
+  .toast {
+    background: var(--carbon);
+    border: 1px solid var(--steel);
+    border-radius: 12px;
+    padding: 16px 20px;
+    min-width: 280px;
+    max-width: 360px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    pointer-events: all;
+    animation: toastIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    position: relative;
+    overflow: hidden;
+  }
+  .toast.leaving { animation: toastOut 0.25s ease forwards; }
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateX(40px) scale(0.95); }
+    to { opacity: 1; transform: translateX(0) scale(1); }
+  }
+  @keyframes toastOut {
+    from { opacity: 1; transform: translateX(0) scale(1); }
+    to { opacity: 0; transform: translateX(40px) scale(0.95); }
+  }
+  .toast-bar {
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 2px;
+    animation: toastBar linear forwards;
+  }
+  @keyframes toastBar {
+    from { width: 100%; }
+    to { width: 0; }
+  }
+  .toast-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .toast-body { flex: 1; }
+  .toast-title {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--chalk);
+    margin-bottom: 3px;
+  }
+  .toast-msg { font-size: 12px; color: var(--mist); line-height: 1.5; }
+  .toast-close {
+    background: none;
+    border: none;
+    color: var(--smoke);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: color 0.15s;
+  }
+  .toast-close:hover { color: var(--chalk); }
+
+  .toast.success .toast-bar { background: var(--sky); }
+  .toast.error .toast-bar { background: var(--ember); }
+  .toast.info .toast-bar { background: var(--mist); }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 40px 0;
+    text-align: center;
+  }
+  .empty-icon {
+    width: 56px; height: 56px;
+    background: var(--steel);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    opacity: 0.5;
+  }
+  .empty-text {
+    font-size: 13px;
+    color: var(--smoke);
+    line-height: 1.7;
+    max-width: 200px;
+  }
+
+  /* ── SUCCESS OVERLAY ── */
+  .success-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15,16,20,0.85);
+    backdrop-filter: blur(8px);
+    animation: fadeIn 0.25s ease;
+  }
+  .success-overlay.visible { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .success-dialog {
+    background: var(--carbon);
+    border: 1px solid var(--steel);
+    border-radius: 20px;
+    padding: 48px 40px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+  }
+  .success-dialog::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--sky), var(--sky-dim));
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.85); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .success-dialog .icon-wrap {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: rgba(56,182,255,0.1);
+    border: 2px solid rgba(56,182,255,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    font-size: 32px;
+  }
+  .success-dialog h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+  .success-dialog p {
+    font-size: 14px;
+    color: var(--mist);
+    line-height: 1.7;
+    margin-bottom: 28px;
+  }
+  .success-dialog .session-id {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--sky);
+    background: rgba(56,182,255,0.08);
+    padding: 10px 16px;
+    border-radius: 8px;
+    margin-bottom: 28px;
+    display: inline-block;
+    letter-spacing: 1px;
+  }
+  .btn-ok {
+    background: var(--sky);
+    color: var(--asphalt);
+    border: none;
+    padding: 14px 40px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+    width: 100%;
+  }
+  .btn-ok:hover { background: var(--sky-dim); }
+
+  /* ── ERROR DIALOG ── */
+  .error-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15,16,20,0.85);
+    backdrop-filter: blur(8px);
+  }
+  .error-overlay.visible { display: flex; animation: fadeIn 0.25s ease; }
+  .error-dialog {
+    background: var(--carbon);
+    border: 1px solid rgba(255,77,28,0.25);
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 380px;
+    width: 90%;
+    text-align: center;
+    animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+  }
+  .error-dialog::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--ember), var(--ember-dim));
+  }
+  .error-dialog .icon-wrap {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: rgba(255,77,28,0.1);
+    border: 2px solid rgba(255,77,28,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 28px;
+  }
+  .error-dialog h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 30px;
+    letter-spacing: 2px;
+    color: var(--ember);
+    margin-bottom: 10px;
+  }
+  .error-dialog p { font-size: 13px; color: var(--mist); line-height: 1.7; margin-bottom: 24px; }
+  .btn-err-close {
+    background: transparent;
+    color: var(--chalk);
+    border: 1px solid var(--steel);
+    padding: 12px 32px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  .btn-err-close:hover { border-color: var(--ember); color: var(--ember); }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .panel-left { padding: 40px 24px; border-right: none; border-bottom: 1px solid var(--steel); }
+    .panel-right { padding: 32px 24px; }
+    header { padding: 20px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="rail"></div>
+
+<!-- <header>
+  <div class="logo">BIKE<em>LEASE</em></div>
+  <div class="header-meta">
+    <span><span class="live-dot"></span>System Online</span>
+    <span>{{ current_user.name if current_user else 'Attendant' }}</span>
+  </div>
+</header> -->
+
+<div class="layout">
+
+  <!-- LEFT PANEL: FORM -->
+  <div class="panel-left">
+
+    <div>
+      <h1 class="page-title">
+        START <span class="accent">SESSION</span>
+      </h1>
+      <!-- <h1 class="page-title" style="display: flex; align-items: baseline; flex-wrap: nowrap; gap: 0.2em; margin: 0;">
+        <span style="white-space: nowrap;">START</span>
+        <span class="accent" style="white-space: nowrap;">SESSION</span>
+    </h1> -->
+      <!-- <p class="page-subtitle">Register a customer and assign a bike. Enter their details below to begin.</p> -->
+    </div>
+
+    <div class="form-section">
+      <div class="input-group">
+        <label class="input-label" for="input-name">Customer Name</label>
+        <div class="input-wrap">
+          <input type="text" id="input-name" placeholder="Full name" autocomplete="off">
+          <div class="input-line"></div>
+        </div>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="input-phone">Phone Number</label>
+        <div class="input-wrap">
+          <input type="tel" id="input-phone" placeholder="+254 7XX XXX XXX" autocomplete="off">
+          <div class="input-line"></div>
+        </div>
+      </div>
+      <button class="btn-submit" id="btn-lookup" onclick="handleCustomerLookup()">
+        <div class="spinner"></div>
+        <span class="btn-text">Look Up Customer</span>
+      </button>
+    </div>
+
+    <!-- STEPS -->
+    <div class="steps">
+      <div class="step active" id="step-1">
+        <div class="step-num">1</div>
+        <div class="step-text">Enter customer details</div>
+      </div>
+      <div class="step-connector" id="conn-1"></div>
+      <div class="step" id="step-2">
+        <div class="step-num">2</div>
+        <div class="step-text">Verify or register customer</div>
+      </div>
+      <div class="step-connector" id="conn-2"></div>
+      <div class="step" id="step-3">
+        <div class="step-num">3</div>
+        <div class="step-text">Assign bike and start session</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT PANEL: CUSTOMER CARD -->
+  <div class="panel-right">
+    <div class="panel-label">Customer Preview</div>
+
+    <!-- EMPTY STATE -->
+    <div class="empty-state" id="empty-state">
+      <div class="empty-icon">👤</div>
+      <p class="empty-text">Enter customer details and submit to see their profile here.</p>
+    </div>
+
+    <!-- CUSTOMER CARD (hidden until request) -->
+    <div class="customer-card" id="customer-card">
+      <div class="card-header">
+        <div class="customer-photo" id="customer-photo">
+          <div class="photo-skel" id="photo-skel"></div>
+          <img id="customer-img" src="" alt="Customer" onload="this.classList.add('loaded'); document.getElementById('photo-skel').style.display='none';">
+        </div>
+        <div class="card-identity" id="card-identity">
+          <!-- Skeleton by default, replaced with data -->
+          <div class="skel-line name" id="name-skel"></div>
+          <div class="skel-line phone" id="phone-skel"></div>
+          <div class="customer-name" id="customer-name-el" style="display:none"></div>
+          <div class="customer-phone" id="customer-phone-el" style="display:none"></div>
+        </div>
+        <div class="status-badge" id="status-badge"></div>
+      </div>
+      <div class="card-stats">
+        <div class="stat-item">
+          <div class="stat-val skel-val" id="points-skel"></div>
+          <div class="stat-val" id="points-val" style="display:none">—</div>
+          <div class="stat-lbl">Points</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val skel-val" id="sessions-skel"></div>
+          <div class="stat-val" id="sessions-val" style="display:none">—</div>
+          <div class="stat-lbl">Sessions</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SESSION FORM (shows after successful lookup) -->
+    <div class="session-form" id="session-form">
+      <div class="session-title">Assign a Bike</div>
+      <div class="input-group">
+        <label class="input-label" for="input-bike">Bike ID</label>
+        <div class="bike-input-wrap">
+          <input type="text" id="input-bike" placeholder="Scan or enter bike ID" autocomplete="off">
+        </div>
+      </div>
+      <button class="btn-start-session" id="btn-session" onclick="handleStartSession()">
+        <div class="spinner"></div>
+        <span class="btn-text">Start Session</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- SUCCESS DIALOG -->
+<div class="success-overlay" id="success-overlay">
+  <div class="success-dialog">
+    <div class="icon-wrap">🚴</div>
+    <h2 id="success-title">SESSION LIVE</h2>
+    <p id="success-body">The session has been started successfully.</p>
+    <div class="session-id" id="success-id"></div>
+    <button class="btn-ok" onclick="dismissSuccess()">Back to Start</button>
+  </div>
+</div>
+
+<!-- ERROR DIALOG -->
+<div class="error-overlay" id="error-overlay">
+  <div class="error-dialog">
+    <div class="icon-wrap"></div>
+    <h2 id="error-title">ERROR</h2>
+    <p id="error-body">Something went wrong. Please try again.</p>
+    <button class="btn-err-close" onclick="dismissError()">Dismiss</button>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+  let currentCustomerId = null;
+
+  // ── TOAST ──
+  function showToast(type, title, msg, duration = 4000) {
+    const container = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    const icons = { success: '✓', error: '✕', info: 'ℹ' };
+    t.innerHTML = `
+      <div class="toast-icon">${icons[type] || 'ℹ'}</div>
+      <div class="toast-body">
+        <div class="toast-title">${title}</div>
+        <div class="toast-msg">${msg}</div>
+      </div>
+      <button class="toast-close" onclick="removeToast(this.closest('.toast'))">×</button>
+      <div class="toast-bar" style="animation-duration:${duration}ms"></div>
+    `;
+    container.appendChild(t);
+    setTimeout(() => removeToast(t), duration);
+  }
+
+  function removeToast(el) {
+    if (!el || !el.parentNode) return;
+    el.classList.add('leaving');
+    setTimeout(() => el.parentNode && el.parentNode.removeChild(el), 280);
+  }
+
+  // ── STEP MANAGEMENT ──
+  function setStep(n) {
+    for (let i = 1; i <= 3; i++) {
+      const step = document.getElementById(`step-${i}`);
+      step.classList.remove('active', 'done');
+      if (i < n) step.classList.add('done');
+      else if (i === n) step.classList.add('active');
+    }
+    for (let i = 1; i <= 2; i++) {
+      const conn = document.getElementById(`conn-${i}`);
+      if (conn) {
+        conn.classList.toggle('lit', i < n);
+      }
+    }
+  }
+
+  // ── SHOW SKELETON CARD ──
+  function showSkeletonCard() {
+    document.getElementById('empty-state').style.display = 'none';
+    const card = document.getElementById('customer-card');
+    card.classList.add('visible');
+
+    // reset skeleton
+    ['name-skel','phone-skel','photo-skel'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = '';
+    });
+    ['customer-name-el','customer-phone-el'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    ['points-skel','sessions-skel'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = '';
+    });
+    ['points-val','sessions-val'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    document.getElementById('customer-img').classList.remove('loaded');
+    document.getElementById('status-badge').style.display = 'none';
+    document.getElementById('session-form').classList.remove('visible');
+  }
+
+  // ── POPULATE CUSTOMER CARD ──
+  function populateCard(data, isNew) {
+    // photo
+    const img = document.getElementById('customer-img');
+    img.src = data.photo || '/static/imgs/avatar.png';
+    document.getElementById('photo-skel').style.display = 'none';
+
+    // name
+    document.getElementById('name-skel').style.display = 'none';
+    document.getElementById('phone-skel').style.display = 'none';
+    const nameEl = document.getElementById('customer-name-el');
+    const phoneEl = document.getElementById('customer-phone-el');
+    nameEl.textContent = data.name || '—';
+    phoneEl.textContent = data.phone || '—';
+    nameEl.style.display = '';
+    phoneEl.style.display = '';
+
+    // stats
+    ['points-skel','sessions-skel'].forEach(id => document.getElementById(id).style.display = 'none');
+    const pointsVal = document.getElementById('points-val');
+    const sessionsVal = document.getElementById('sessions-val');
+    pointsVal.textContent = data.points || '—';
+    sessionsVal.textContent = Array.isArray(data.sessions) ? data.sessions.length : '0';
+    pointsVal.style.display = '';
+    sessionsVal.style.display = '';
+
+    // badge
+    const badge = document.getElementById('status-badge');
+    badge.style.display = '';
+    if (isNew) {
+      badge.textContent = 'New';
+      badge.className = 'status-badge new-customer';
+    } else {
+      badge.textContent = 'Returning';
+      badge.className = 'status-badge returning';
+    }
+
+    // show session form
+    document.getElementById('session-form').classList.add('visible');
+  }
+
+  // ── CUSTOMER LOOKUP ──
+  async function handleCustomerLookup() {
+    const name = document.getElementById('input-name').value.trim();
+    const phone = document.getElementById('input-phone').value.trim();
+
+    if (!name || !phone) {
+      showToast('error', 'Missing Fields', 'Please enter both name and phone number.');
+      return;
+    }
+
+    const btn = document.getElementById('btn-lookup');
+    btn.disabled = true;
+    btn.classList.add('loading');
+
+    showSkeletonCard();
+    setStep(2);
+
+    try {
+      const res = await fetch('/customers/v1/create-customer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, phone })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.detail || 'Request failed');
+      }
+
+      currentCustomerId = data.id;
+      const isNew = data.detail !== 'Customer exists';
+
+      // small delay for perceived smoothness
+      setTimeout(() => {
+        populateCard(data, isNew);
+        setStep(3);
+        if (isNew) {
+          showToast('success', 'Customer Registered', `${data.name || name} has been added to the system.`);
+        } else {
+          showToast('info', 'Customer Found', `Welcome back, ${data.name || name}.`);
+        }
+      }, 600);
+
+    } catch (err) {
+      document.getElementById('empty-state').style.display = '';
+      document.getElementById('customer-card').classList.remove('visible');
+      setStep(1);
+      showErrorDialog('Lookup Failed', err.message || 'Could not process the customer. Please try again.');
+    } finally {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+    }
+  }
+
+  // ── START SESSION ──
+  async function handleStartSession() {
+    const bikeId = document.getElementById('input-bike').value.trim();
+    if (!bikeId) {
+      showToast('error', 'Missing Bike ID', 'Please enter a bike ID to start the session.');
+      return;
+    }
+    if (!currentCustomerId) {
+      showToast('error', 'No Customer', 'Please look up a customer first.');
+      return;
+    }
+
+    const btn = document.getElementById('btn-session');
+    btn.disabled = true;
+    btn.classList.add('loading');
+
+    try {
+      const res = await fetch('/customers/v1/start-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customer_id: currentCustomerId, bike_id: bikeId })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.detail || 'Session could not be started.');
+      }
+
+      showSuccessDialog(
+        'SESSION LIVE',
+        data.detail || 'The session has been started successfully.',
+        `Customer: ${currentCustomerId}`
+      );
+      window.location.href="/session/"+data.id
+
+    } catch (err) {
+      showErrorDialog('Session Failed', err.message || 'Unable to start the session.');
+    } finally {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+    }
+  }
+
+  // ── DIALOGS ──
+  function showSuccessDialog(title, body, id) {
+    document.getElementById('success-title').textContent = title;
+    document.getElementById('success-body').textContent = body;
+    document.getElementById('success-id').textContent = id;
+    document.getElementById('success-overlay').classList.add('visible');
+  }
+
+  function dismissSuccess() {
+    document.getElementById('success-overlay').classList.remove('visible');
+    resetAll();
+    window.location.href="/shop/{{ shop_id }}";
+  }
+
+  function showErrorDialog(title, body) {
+    document.getElementById('error-title').textContent = title;
+    document.getElementById('error-body').textContent = body;
+    document.getElementById('error-overlay').classList.add('visible');
+  }
+
+  function dismissError() {
+    document.getElementById('error-overlay').classList.remove('visible');
+  }
+
+  function resetAll() {
+    currentCustomerId = null;
+    document.getElementById('input-name').value = '';
+    document.getElementById('input-phone').value = '';
+    document.getElementById('input-bike').value = '';
+    document.getElementById('customer-card').classList.remove('visible');
+    document.getElementById('session-form').classList.remove('visible');
+    document.getElementById('empty-state').style.display = '';
+    setStep(1);
+  }
+
+  // Enter key support
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const focused = document.activeElement;
+      if (focused.id === 'input-bike') {
+        handleStartSession();
+      } else if (['input-name','input-phone'].includes(focused.id)) {
+        handleCustomerLookup();
+      }
+    }
+  });
+</script>
+</body>
+</html>

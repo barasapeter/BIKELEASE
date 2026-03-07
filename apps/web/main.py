@@ -154,6 +154,26 @@ async def shop(
         return templates.TemplateResponse("error.html", context)
 
 
+@router.get("/bikes/{shop_id}")
+async def sessions(
+    shop_id: UUID,
+    request: Request,
+    user=Depends(get_current_user_optional),
+):
+    context = {"request": request, "shop": shop_id}
+    try:
+        if user is None:
+            return RedirectResponse(url="/login")
+
+        context["shop_id"] = shop_id
+        return templates.TemplateResponse("bikes.html", context)
+    except Exception:
+        context["status_code"] = 500
+        context["error_title"] = "Internal Server Error"
+        context["traceback"] = traceback.format_exc()
+        return templates.TemplateResponse("error.html", context)
+
+
 @router.get("/sessions/{shop_id}")
 async def sessions(
     shop_id: UUID,

@@ -96,6 +96,7 @@ async def create_bike(
             nickname=nickname,
             rate_per_minute=rate_per_minute,
             shop_id=shop.id,
+            metadata_e={"bikestate": "AVAILABLE"},
         )
         db.add(bike)
         db.commit()

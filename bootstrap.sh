@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DOMAIN="beta.cardlabs.cloud"
+DOMAIN="speedy.cardlabs.cloud"
 EMAIL="barasapeter52@gmail.com"
-REPO="https://github.com/barasapeter/cardlabsv3.0.git"
-APP_DIR="/home/ubuntu/cardlabsv3.0"
-DB_NAME="cardlabs"
+REPO="https://github.com/barasapeter/BIKELEASE.git"
+APP_DIR="/home/ubuntu/BIKELEASE"
+DB_NAME="bikelease"
 SERVICE_NAME="fastapi"
 BIND_ADDR="127.0.0.1:8000"
 # ==============================
@@ -62,7 +62,7 @@ POSTGRES_USER=postgres
 POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 POSTGRES_DB=${DB_NAME}
 
-JWT_SECRET_KEY=i_am_batman
+JWT_SECRET_KEY=this_is_a_placeholder_lol
 
 AWS_ACCESS_KEY=lolno
 AWS_SECRET_ACCESS_KEY=lol

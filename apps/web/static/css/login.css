@@ -1,13 +1,13 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --asphalt:   #0F1014;
-  --carbon:    #1C1E26;
-  --steel:     #2A2D38;
-  --smoke:     #4A4F63;
-  --mist:      #8A8FA8;
-  --chalk:     #F0F0F5;
-  --white:     #FFFFFF;
+  --asphalt:   #F5F5F7;
+  --carbon:    #FFFFFF;
+  --steel:     #E5E5EA;
+  --smoke:     #8E8E93;
+  --mist:      #636366;
+  --chalk:     #1C1C1E;
+  --white:     #000000;
   --volt:      #C8F400;
   --volt-dim:  #9BBF00;
   --ember:     #FF4D1C;
@@ -57,7 +57,7 @@ body {
   left: -10px;
   font-family: 'Bebas Neue', sans-serif;
   font-size: clamp(160px, 22vw, 280px);
-  color: rgba(200,244,0,0.06);
+  color: rgba(200,244,0,0.15);
   line-height: 1;
   pointer-events: none;
   user-select: none;
@@ -143,17 +143,6 @@ body {
   position: relative;
 }
 
-/* subtle grid texture */
-.right::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(42,45,56,0.4) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(42,45,56,0.4) 1px, transparent 1px);
-  background-size: 40px 40px;
-  pointer-events: none;
-}
 
 .form-wrap {
   max-width: 380px;
@@ -213,7 +202,7 @@ body {
 .field input::placeholder { color: var(--smoke); }
 .field input:focus {
   border-color: var(--volt);
-  box-shadow: 0 0 0 3px rgba(200,244,0,0.12);
+  box-shadow: 0 0 0 3px rgba(200,244,0,0.25);
 }
 
 .field-row {
@@ -339,8 +328,8 @@ body {
   transition: border-color 0.2s, background 0.2s;
 }
 .btn-ghost:hover {
-  border-color: var(--mist);
-  background: var(--carbon);
+  border-color: var(--smoke);
+  background: rgba(0,0,0,0.03);
 }
 .btn-ghost svg { flex-shrink: 0; }
 

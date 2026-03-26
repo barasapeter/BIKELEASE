@@ -3,7 +3,8 @@ const themeBtn = document.getElementById('themeBtn');
 const html = document.documentElement;
 
 // Get saved theme
-let theme = localStorage.getItem('theme');
+// let theme = localStorage.getItem('theme');
+let theme = localStorage.getItem('light');
 
 // If no saved theme, use device preference
 if (!theme) {

@@ -113,7 +113,7 @@ def get_current_user(
 ):
     token = request.cookies.get(ACCESS_COOKIE_NAME)
     if not token:
-        raise HTTPException(status_code=401, detail="Not authenticated")
+        raise HTTPException(status_code=403, detail="Unauthorized")
 
     payload = verify_token(token, "access")
 

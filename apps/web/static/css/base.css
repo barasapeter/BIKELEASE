@@ -1,12 +1,54 @@
+/* ============================================================
+   BIKELEASE — base.css  (landing page)
+   Brand-consistent with login.css
+   macOS light/dark dual-theme · Bebas Neue + DM Sans + Space Mono
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ─── TOKEN SYSTEM ───────────────────────────────────────── */
 :root {
-  --font-display: 'Bebas Neue', sans-serif;
-  --font-body:    'DM Sans', sans-serif;
-  --font-mono:    'Space Mono', monospace;
-  --volt:      #C8F400;
-  --volt-dim:  #9BBF00;
-  --ember:     #FF4D1C;
-  --sky:       #38B6FF;
+  /* backgrounds */
+  --bg-base:       #f2f2f7;
+  --bg-layer:      #ffffff;
+  --bg-elevated:   #fafafa;
+  --glass-bg:      rgba(255,255,255,0.78);
+  --glass-border:  rgba(0,0,0,0.08);
+
+  /* accent */
+  --accent:        #e8521a;
+  --accent-glow:   rgba(232,82,26,0.20);
+  --accent-soft:   rgba(232,82,26,0.08);
+
+  /* secondary accent (sky blue for M-Pesa / info tags) */
+  --sky:           #0a84ff;
+  --sky-soft:      rgba(10,132,255,0.10);
+
+  /* ember for analytics tags */
+  --ember:         #ff9500;
+  --ember-soft:    rgba(255,149,0,0.10);
+
+  /* text */
+  --text-primary:   #1c1c1e;
+  --text-secondary: rgba(28,28,30,0.58);
+  --text-tertiary:  rgba(28,28,30,0.36);
+
+  /* radii */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  /* blur */
+  --blur-glass: blur(28px) saturate(1.8);
+
+  /* section spacing */
+  --section-gap: 120px;
+  --wrap-max: 1160px;
+  --wrap-pad: 0 48px;
 }
+
+/* ─── DARK THEME TOKENS ──────────────────────────────────── */
 [data-theme="dark"] {
   --bg:        #0F1014;
   --surface:   #1C1E26;

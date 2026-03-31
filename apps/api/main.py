@@ -20,7 +20,7 @@ from apps.api.routers import (
     rentals,
     reports,
     shop,
-    queries
+    queries,
 )
 
 from data.models import Base
@@ -69,6 +69,7 @@ def create_app() -> FastAPI:
     app.include_router(customers.router, prefix="/customers/v1", tags=["customers"])
     app.include_router(payments.router, prefix="/payments/v1", tags=["payments"])
     app.include_router(queries.router, prefix="/queries/v1", tags=["queries"])
+    app.include_router(reports.router, prefix="/reports/v1", tags=["reports"])
 
     init_db()
 

@@ -367,3 +367,14 @@ async def session_view(
 
     except Exception:
         return internal_error()
+
+
+@router.get("/reports/{shop_id}")
+async def session_view(
+    shop_id: UUID,
+    request: Request,
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user_optional),
+):
+    context = {"request": request, "shop_id": shop_id}
+    return templates.TemplateResponse("reports.html", context)

@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BikeLeaseDesk — Bike Rental Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,400&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink:       #0F1014;  /* asphalt */
+  --paper:     #F0F0F5;  /* chalk */
+  --cream:     #E8E9EF;  /* softened chalk for layering */
+
+  --rust:      #C8F400;  /* volt (primary accent) */
+  --rust-dim:  #9BBF00;  /* volt-dim */
+
+  --sage:      #2A2D38;  /* steel (UI surfaces) */
+  --mist:      #8A8FA8;  /* mist */
+
+  --gold:      #38B6FF;  /* sky (secondary accent) */
+  --red:       #FF4D1C;  /* ember (error / destructive) */
+
+  --mono:      'DM Sans', sans-serif;
+  --serif:     'DM Sans', sans-serif;
+}
+
+  html { font-size: 15px; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--mono);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE TEXTURE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 999;
+  }
+
+  /* ── LAYOUT ── */
+  .shell {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ── */
+  aside {
+    background: var(--ink);
+    color: var(--paper);
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 1.5rem;
+    border-right: 3px solid var(--rust);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .logo {
+    font-family: var(--serif);
+    font-size: 1.7rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: .25rem;
+    color: var(--paper);
+  }
+  .logo span { color: var(--rust); font-style: italic; }
+
+  .logo-sub {
+    font-size: .65rem;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 2rem;
+  }
+
+  /* Config block */
+  .cfg-label {
+    font-size: .6rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #666;
+    margin-bottom: .4rem;
+    margin-top: 1.25rem;
+  }
+  .cfg-label:first-of-type { margin-top: 0; }
+
+  aside input, aside select {
+    width: 100%;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 4px;
+    color: var(--paper);
+    font-family: var(--mono);
+    font-size: .78rem;
+    padding: .5rem .6rem;
+    outline: none;
+    transition: border-color .2s;
+  }
+  aside input:focus, aside select:focus { border-color: var(--rust); }
+
+  /* Nav */
+  nav { margin-top: 2rem; flex: 1; }
+
+  .nav-label {
+    font-size: .6rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #555;
+    margin-bottom: .75rem;
+  }
+
+  .nav-btn {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    width: 100%;
+    background: none;
+    border: none;
+    color: #aaa;
+    font-family: var(--mono);
+    font-size: .78rem;
+    padding: .55rem .6rem;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: left;
+    transition: background .15s, color .15s;
+    margin-bottom: .15rem;
+  }
+  .nav-btn:hover { background: #1f1f1f; color: var(--paper); }
+  .nav-btn.active { background: var(--rust); color: #fff; }
+
+  .nav-btn .icon {
+    width: 18px; height: 18px;
+    flex-shrink: 0;
+    opacity: .8;
+  }
+
+  .run-btn {
+    margin-top: 1.5rem;
+    width: 100%;
+    background: var(--rust);
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-family: var(--mono);
+    font-size: .8rem;
+    font-weight: 500;
+    letter-spacing: .06em;
+    padding: .7rem;
+    cursor: pointer;
+    transition: background .2s, transform .1s;
+  }
+  .run-btn:hover { background: var(--rust-dim); }
+  .run-btn:active { transform: scale(.98); }
+  .run-btn:disabled { background: #444; cursor: not-allowed; }
+
+  .sidebar-footer {
+    margin-top: 2rem;
+    font-size: .65rem;
+    color: #444;
+    line-height: 1.6;
+  }
+
+  /* ── MAIN ── */
+  main {
+    padding: 2.5rem 2.5rem 4rem;
+    overflow-y: auto;
+  }
+
+  .main-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1.5px solid var(--cream);
+  }
+
+  .page-title {
+    font-family: var(--serif);
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .page-title em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--rust);
+  }
+
+  .page-meta {
+    font-size: .7rem;
+    color: #888;
+    margin-top: .35rem;
+    letter-spacing: .05em;
+  }
+
+  .status-pill {
+    font-size: .65rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: .3rem .7rem;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .status-pill.idle    { background: var(--cream); color: #888; }
+  .status-pill.loading { background: #fff3e0; color: var(--gold); }
+  .status-pill.ok      { background: #e8f5e9; color: var(--sage); }
+  .status-pill.error   { background: #fdecea; color: var(--red); }
+
+  /* ── PANELS ── */
+  .panel { display: none; animation: fadeUp .3s ease; }
+  .panel.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── FILTER BAR ── */
+  .filter-bar {
+    display: flex;
+    gap: .75rem;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    background: var(--cream);
+    border: 1.5px solid #ddd5c0;
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .filter-group { display: flex; flex-direction: column; gap: .3rem; }
+  .filter-group label {
+    font-size: .62rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #777;
+  }
+  .filter-group input, .filter-group select {
+    background: #fff;
+    border: 1.5px solid #d0c8b5;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: .78rem;
+    padding: .45rem .65rem;
+    outline: none;
+    color: var(--ink);
+    transition: border-color .2s;
+  }
+  .filter-group input:focus, .filter-group select:focus { border-color: var(--rust); }
+
+  /* ── STAT CARDS ── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .stat-card {
+    background: #fff;
+    border: 1.5px solid var(--cream);
+    border-radius: 8px;
+    padding: 1.1rem 1.25rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px; height: 100%;
+    background: var(--rust);
+  }
+  .stat-card.green::before { background: var(--sage); }
+  .stat-card.gold::before  { background: var(--gold); }
+  .stat-card.red::before   { background: var(--red);  }
+
+  .stat-label {
+    font-size: .62rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: .4rem;
+  }
+  .stat-value {
+    font-family: var(--serif);
+    font-size: 1.7rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .stat-sub {
+    font-size: .68rem;
+    color: #aaa;
+    margin-top: .25rem;
+  }
+
+  /* ── TABLE ── */
+  .table-wrap {
+    background: #fff;
+    border: 1.5px solid var(--cream);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .table-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .9rem 1.25rem;
+    border-bottom: 1.5px solid var(--cream);
+    background: var(--cream);
+  }
+  .table-head-title {
+    font-size: .7rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .table-count {
+    font-size: .65rem;
+    color: #999;
+    background: #fff;
+    padding: .2rem .55rem;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .78rem;
+  }
+  thead th {
+    text-align: left;
+    padding: .65rem 1rem;
+    font-size: .62rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #888;
+    border-bottom: 1px solid var(--cream);
+    white-space: nowrap;
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--cream);
+    transition: background .15s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #faf7f2; }
+  tbody td {
+    padding: .65rem 1rem;
+    vertical-align: middle;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: .62rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: .2rem .55rem;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .badge.cash  { background: #e8f5e9; color: var(--sage); }
+  .badge.mpesa { background: #e3f2fd; color: #1565c0; }
+  .badge.idle  { background: #fdecea; color: var(--red); }
+  .badge.never { background: #fff3e0; color: var(--gold); }
+
+  .rank {
+    font-family: var(--serif);
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--rust);
+    width: 28px;
+    display: inline-block;
+    text-align: center;
+  }
+
+  .bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+  }
+  .bar-bg {
+    flex: 1;
+    height: 6px;
+    background: var(--cream);
+    border-radius: 3px;
+    overflow: hidden;
+    min-width: 60px;
+  }
+  .bar-fill {
+    height: 100%;
+    background: var(--rust);
+    border-radius: 3px;
+    transition: width .5s ease;
+  }
+  .bar-fill.green { background: var(--sage); }
+
+  /* ── EMPTY / ERROR / LOADING STATES ── */
+  .state-box {
+    padding: 4rem 2rem;
+    text-align: center;
+    color: #aaa;
+  }
+  .state-box .icon-lg { font-size: 2.5rem; margin-bottom: .75rem; }
+  .state-box p { font-size: .8rem; line-height: 1.7; }
+
+  /* ── DAILY CHART ── */
+  .daily-chart {
+    background: #fff;
+    border: 1.5px solid var(--cream);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1.75rem;
+  }
+  .chart-title {
+    font-size: .7rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 1.25rem;
+  }
+  .bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 100px;
+  }
+  .bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    height: 100%;
+    justify-content: flex-end;
+  }
+  .bar-col-fill {
+    width: 100%;
+    background: var(--rust);
+    border-radius: 3px 3px 0 0;
+    min-height: 2px;
+    transition: height .4s ease;
+    opacity: .85;
+  }
+  .bar-col-label {
+    font-size: .55rem;
+    color: #aaa;
+    white-space: nowrap;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 800px) {
+    .shell { grid-template-columns: 1fr; }
+    aside { position: static; height: auto; }
+    main { padding: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ══════════════ SIDEBAR ══════════════ -->
+  <aside>
+    <div class="logo">BileLease<span>Desk</span></div>
+    <div class="logo-sub">Rental Analytics</div>
+
+    <div style="display: none;">
+        <div class="cfg-label">API Base URL</div>
+    <input id="cfg-base" type="text" value="http://localhost:8000" placeholder="http://localhost:8000"/>
+
+    <div class="cfg-label">Bearer Token</div>
+    <input id="cfg-token" type="password" placeholder="eyJhbGci…"/>
+
+    <div class="cfg-label">Shop ID</div>
+    <input id="cfg-shop" type="text" placeholder="uuid…" value="{{ shop_id }}"/>
+    </div>
+
+    <nav>
+      <div class="nav-label">Reports</div>
+      <button class="nav-btn active" data-panel="daily">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Daily Revenue
+      </button>
+      <button class="nav-btn" data-panel="weekly">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Weekly Summary
+      </button>
+      <button class="nav-btn" data-panel="utilization">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Bike Utilization
+      </button>
+      <button class="nav-btn" data-panel="idle">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Idle Bikes
+      </button>
+      <button class="nav-btn" data-panel="customers">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Top Customers
+      </button>
+
+      <button class="run-btn" id="run-btn">▶ Fetch</button>
+    </nav>
+
+    <div class="sidebar-footer">
+      BikeLeaseDesk v1.0<br/>
+      All times in UTC
+    </div>
+  </aside>
+
+  <!-- ══════════════ MAIN ══════════════ -->
+  <main>
+
+    <!-- ── DAILY REVENUE ── -->
+    <div class="panel active" id="panel-daily">
+      <div class="main-header">
+        <div>
+          <div class="page-title">Daily <em>Revenue</em></div>
+          <div class="page-meta">Rentals & income for a single day</div>
+        </div>
+        <span class="status-pill idle" id="status-daily">Idle</span>
+      </div>
+
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label>Report Date</label>
+          <input type="date" id="daily-date"/>
+        </div>
+      </div>
+
+      <div id="daily-content">
+        <div class="state-box"><div class="icon-lg">📅</div><p>Configure your filters and hit <strong>Run Report</strong>.</p></div>
+      </div>
+    </div>
+
+    <!-- ── WEEKLY SUMMARY ── -->
+    <div class="panel" id="panel-weekly">
+      <div class="main-header">
+        <div>
+          <div class="page-title">Weekly <em>Summary</em></div>
+          <div class="page-meta">Revenue breakdown over a 7-day window</div>
+        </div>
+        <span class="status-pill idle" id="status-weekly">Idle</span>
+      </div>
+
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label>Week Start</label>
+          <input type="date" id="weekly-start"/>
+        </div>
+      </div>
+
+      <div id="weekly-content">
+        <div class="state-box"><div class="icon-lg">📊</div><p>Configure your filters and hit <strong>Run Report</strong>.</p></div>
+      </div>
+    </div>
+
+    <!-- ── BIKE UTILIZATION ── -->
+    <div class="panel" id="panel-utilization">
+      <div class="main-header">
+        <div>
+          <div class="page-title">Bike <em>Utilization</em></div>
+          <div class="page-meta">Usage & revenue per bike in a date range</div>
+        </div>
+        <span class="status-pill idle" id="status-utilization">Idle</span>
+      </div>
+
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label>Since</label>
+          <input type="date" id="util-since"/>
+        </div>
+        <div class="filter-group">
+          <label>Until</label>
+          <input type="date" id="util-until"/>
+        </div>
+      </div>
+
+      <div id="utilization-content">
+        <div class="state-box"><div class="icon-lg">🚲</div><p>Configure your filters and hit <strong>Run Report</strong>.</p></div>
+      </div>
+    </div>
+
+    <!-- ── IDLE BIKES ── -->
+    <div class="panel" id="panel-idle">
+      <div class="main-header">
+        <div>
+          <div class="page-title">Idle <em>Bikes</em></div>
+          <div class="page-meta">Bikes without recent activity</div>
+        </div>
+        <span class="status-pill idle" id="status-idle">Idle</span>
+      </div>
+
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label>Idle Threshold (hours)</label>
+          <input type="number" id="idle-hours" value="24" min="1" max="720"/>
+        </div>
+      </div>
+
+      <div id="idle-content">
+        <div class="state-box"><div class="icon-lg">💤</div><p>Configure your filters and hit <strong>Run Report</strong>.</p></div>
+      </div>
+    </div>
+
+    <!-- ── TOP CUSTOMERS ── -->
+    <div class="panel" id="panel-customers">
+      <div class="main-header">
+        <div>
+          <div class="page-title">Top <em>Customers</em></div>
+          <div class="page-meta">Highest-spending & most frequent renters</div>
+        </div>
+        <span class="status-pill idle" id="status-customers">Idle</span>
+      </div>
+
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label>Since</label>
+          <input type="date" id="cust-since"/>
+        </div>
+        <div class="filter-group">
+          <label>Until</label>
+          <input type="date" id="cust-until"/>
+        </div>
+        <div class="filter-group">
+          <label>Limit</label>
+          <select id="cust-limit">
+            <option value="10">Top 10</option>
+            <option value="20" selected>Top 20</option>
+            <option value="50">Top 50</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="customers-content">
+        <div class="state-box"><div class="icon-lg">🏆</div><p>Configure your filters and hit <strong>Run Report</strong>.</p></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const fmt  = n  => Number(n).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtN = n  => Number(n).toLocaleString();
+const toISO = d => d ? new Date(d + 'T00:00:00Z').toISOString() : null;
+
+function cfg() {
+  return {
+    base:  $('cfg-base').value.replace(/\/$/, ''),
+    token: $('cfg-token').value.trim(),
+    shop:  $('cfg-shop').value.trim(),
+  };
+}
+
+function setStatus(panel, state, text) {
+  const el = $(`status-${panel}`);
+  el.className = `status-pill ${state}`;
+  el.textContent = text;
+}
+
+async function apiFetch(path, params = {}) {
+  const { base, token, shop } = cfg();
+  if (!shop) throw new Error('Shop ID is required. Fill it in the sidebar.');
+//   if (!token) throw new Error('Bearer token is required. Fill it in the sidebar.');
+
+  const url = new URL(`${base}/reports/v1${path}`);
+  url.searchParams.set('shop_id', shop);
+  Object.entries(params).forEach(([k, v]) => { if (v != null) url.searchParams.set(k, v); });
+
+  const res = await fetch(url, {
+    // headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
+function errorBox(msg) {
+  return `<div class="state-box"><div class="icon-lg">⚠️</div><p>${msg}</p></div>`;
+}
+
+// ─────────────────────────────────────────────
+// Navigation
+// ─────────────────────────────────────────────
+let activePanel = 'daily';
+
+document.querySelectorAll('.nav-btn[data-panel]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    activePanel = btn.dataset.panel;
+    $(`panel-${activePanel}`).classList.add('active');
+  });
+});
+
+// ─────────────────────────────────────────────
+// Run dispatcher
+// ─────────────────────────────────────────────
+$('run-btn').addEventListener('click', async () => {
+  const btn = $('run-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Loading…';
+  try {
+    await runners[activePanel]();
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '▶ Execute';
+  }
+});
+
+const runners = {
+  daily:       runDaily,
+  weekly:      runWeekly,
+  utilization: runUtilization,
+  idle:        runIdle,
+  customers:   runCustomers,
+};
+
+// ─────────────────────────────────────────────
+// 1. DAILY REVENUE
+// ─────────────────────────────────────────────
+async function runDaily() {
+  setStatus('daily', 'loading', 'Loading…');
+  const el = $('daily-content');
+  try {
+    const params = {};
+    const d = $('daily-date').value;
+    if (d) params.report_date = toISO(d);
+
+    const data = await apiFetch('/daily-revenue', params);
+    setStatus('daily', 'ok', 'OK');
+
+    const byMethod = data.revenue_by_payment_method || {};
+    const cash  = byMethod['CASH']  || 0;
+    const mpesa = byMethod['MPESA'] || 0;
+    const maxBikeRev = Math.max(...(data.revenue_by_bike || []).map(b => b.revenue), 1);
+
+    el.innerHTML = `
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-value">KES ${fmt(data.total_revenue)}</div>
+          <div class="stat-sub">${data.report_date}</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Total Rentals</div>
+          <div class="stat-value">${fmtN(data.total_rentals)}</div>
+          <div class="stat-sub">completed sessions</div>
+        </div>
+        <div class="stat-card gold">
+          <div class="stat-label">Cash</div>
+          <div class="stat-value">KES ${fmt(cash)}</div>
+          <div class="stat-sub">${byMethod['CASH'] !== undefined ? Math.round(cash / (data.total_revenue || 1) * 100) : 0}% of revenue</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">M-Pesa</div>
+          <div class="stat-value">KES ${fmt(mpesa)}</div>
+          <div class="stat-sub">${byMethod['MPESA'] !== undefined ? Math.round(mpesa / (data.total_revenue || 1) * 100) : 0}% of revenue</div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-head">
+          <span class="table-head-title">Revenue by Bike</span>
+          <span class="table-count">${(data.revenue_by_bike || []).length} bikes</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Bike ID</th>
+              <th>Rentals</th>
+              <th>Revenue</th>
+              <th style="min-width:140px">Share</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${(data.revenue_by_bike || []).map((b, i) => `
+              <tr>
+                <td><span class="rank">${i + 1}</span></td>
+                <td>${b.bike_id}</td>
+                <td>${b.rentals}</td>
+                <td><strong>KES ${fmt(b.revenue)}</strong></td>
+                <td>
+                  <div class="bar-wrap">
+                    <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(b.revenue / maxBikeRev * 100)}%"></div></div>
+                    <span style="font-size:.68rem;color:#aaa">${Math.round(b.revenue / (data.total_revenue || 1) * 100)}%</span>
+                  </div>
+                </td>
+              </tr>
+            `).join('') || '<tr><td colspan="5" style="text-align:center;color:#aaa;padding:2rem">No data</td></tr>'}
+          </tbody>
+        </table>
+      </div>`;
+  } catch (e) {
+    setStatus('daily', 'error', 'Error');
+    el.innerHTML = errorBox(e.message);
+  }
+}
+
+// ─────────────────────────────────────────────
+// 2. WEEKLY SUMMARY
+// ─────────────────────────────────────────────
+async function runWeekly() {
+  setStatus('weekly', 'loading', 'Loading…');
+  const el = $('weekly-content');
+  try {
+    const params = {};
+    const ws = $('weekly-start').value;
+    if (ws) params.week_start = toISO(ws);
+
+    const data = await apiFetch('/weekly-revenue', params);
+    setStatus('weekly', 'ok', 'OK');
+
+    const daily = data.daily_revenue || {};
+    const days  = Object.keys(daily).sort();
+    const maxDay = Math.max(...Object.values(daily), 1);
+    const maxBikeRev = Math.max(...(data.revenue_by_bike || []).map(b => b.revenue), 1);
+
+    el.innerHTML = `
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-value">KES ${fmt(data.total_revenue)}</div>
+          <div class="stat-sub">${data.week_start} → ${data.week_end}</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Total Rentals</div>
+          <div class="stat-value">${fmtN(data.total_rentals)}</div>
+          <div class="stat-sub">across 7 days</div>
+        </div>
+        <div class="stat-card gold">
+          <div class="stat-label">Avg Daily</div>
+          <div class="stat-value">KES ${fmt(data.total_revenue / 7)}</div>
+          <div class="stat-sub">per day</div>
+        </div>
+      </div>
+
+      ${days.length ? `
+      <div class="daily-chart">
+        <div class="chart-title">Daily Revenue</div>
+        <div class="bar-chart">
+          ${days.map(d => {
+            const pct = Math.max(Math.round(daily[d] / maxDay * 100), 2);
+            const label = d.slice(5); // MM-DD
+            return `<div class="bar-col">
+              <div style="font-size:.62rem;color:#888;margin-bottom:2px">KES ${Math.round(daily[d]).toLocaleString()}</div>
+              <div class="bar-col-fill" style="height:${pct}%"></div>
+              <div class="bar-col-label">${label}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>` : ''}
+
+      <div class="table-wrap">
+        <div class="table-head">
+          <span class="table-head-title">Top 5 Bikes</span>
+          <span class="table-count">by revenue</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>#</th><th>Bike ID</th><th>Rentals</th><th>Hours</th><th>Revenue</th><th style="min-width:120px">Bar</th></tr>
+          </thead>
+          <tbody>
+            ${(data.top_5_profitable_bikes || []).map((b, i) => `
+              <tr>
+                <td><span class="rank">${i + 1}</span></td>
+                <td>${b.bike_id}</td>
+                <td>${b.rentals}</td>
+                <td>${(b.total_minutes / 60).toFixed(1)}h</td>
+                <td><strong>KES ${fmt(b.revenue)}</strong></td>
+                <td>
+                  <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(b.revenue / maxBikeRev * 100)}%"></div></div>
+                </td>
+              </tr>
+            `).join('') || '<tr><td colspan="6" style="text-align:center;color:#aaa;padding:2rem">No data</td></tr>'}
+          </tbody>
+        </table>
+      </div>`;
+  } catch (e) {
+    setStatus('weekly', 'error', 'Error');
+    el.innerHTML = errorBox(e.message);
+  }
+}
+
+// ─────────────────────────────────────────────
+// 3. BIKE UTILIZATION
+// ─────────────────────────────────────────────
+async function runUtilization() {
+  setStatus('utilization', 'loading', 'Loading…');
+  const el = $('utilization-content');
+  try {
+    const params = {};
+    const s = $('util-since').value, u = $('util-until').value;
+    if (s) params.since = toISO(s);
+    if (u) params.until = toISO(u);
+
+    const data = await apiFetch('/bike-utilization', params);
+    setStatus('utilization', 'ok', 'OK');
+
+    const bikes = data.bikes || [];
+    const maxRev = Math.max(...bikes.map(b => b.total_revenue), 1);
+    const maxHrs = Math.max(...bikes.map(b => b.total_hours), 1);
+    const totalRev = bikes.reduce((s, b) => s + b.total_revenue, 0);
+
+    el.innerHTML = `
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Fleet Size</div>
+          <div class="stat-value">${bikes.length}</div>
+          <div class="stat-sub">bikes tracked</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Active Bikes</div>
+          <div class="stat-value">${bikes.filter(b => b.total_rentals > 0).length}</div>
+          <div class="stat-sub">rented at least once</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-value">KES ${fmt(totalRev)}</div>
+          <div class="stat-sub">${data.since?.slice(0,10)} → ${data.until?.slice(0,10)}</div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-head">
+          <span class="table-head-title">Bike Utilization</span>
+          <span class="table-count">${bikes.length} bikes</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Bike ID</th>
+              <th>Nickname</th>
+              <th>Rentals</th>
+              <th>Hours</th>
+              <th>Avg Session</th>
+              <th>Revenue</th>
+              <th style="min-width:120px">Utilization</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${bikes.map((b, i) => `
+              <tr>
+                <td><span class="rank">${i + 1}</span></td>
+                <td style="font-weight:500">${b.bike_id}</td>
+                <td style="color:#888">${b.nickname || '—'}</td>
+                <td>${b.total_rentals}</td>
+                <td>${b.total_hours}h</td>
+                <td>${b.avg_session_minutes} min</td>
+                <td><strong>KES ${fmt(b.total_revenue)}</strong></td>
+                <td>
+                  <div class="bar-wrap">
+                    <div class="bar-bg"><div class="bar-fill green" style="width:${Math.round(b.total_hours / maxHrs * 100)}%"></div></div>
+                    <span style="font-size:.65rem;color:#aaa">${Math.round(b.total_hours / maxHrs * 100)}%</span>
+                  </div>
+                </td>
+              </tr>
+            `).join('') || '<tr><td colspan="8" style="text-align:center;color:#aaa;padding:2rem">No data</td></tr>'}
+          </tbody>
+        </table>
+      </div>`;
+  } catch (e) {
+    setStatus('utilization', 'error', 'Error');
+    el.innerHTML = errorBox(e.message);
+  }
+}
+
+// ─────────────────────────────────────────────
+// 4. IDLE BIKES
+// ─────────────────────────────────────────────
+async function runIdle() {
+  setStatus('idle', 'loading', 'Loading…');
+  const el = $('idle-content');
+  try {
+    const params = { idle_threshold_hours: $('idle-hours').value };
+    const data = await apiFetch('/idle-bikes', params);
+    setStatus('idle', 'ok', 'OK');
+
+    const bikes = data.idle_bikes || [];
+
+    el.innerHTML = `
+      <div class="stat-grid">
+        <div class="stat-card red">
+          <div class="stat-label">Idle Bikes</div>
+          <div class="stat-value">${data.idle_bike_count}</div>
+          <div class="stat-sub">inactive > ${data.idle_threshold_hours}h</div>
+        </div>
+        <div class="stat-card gold">
+          <div class="stat-label">Never Rented</div>
+          <div class="stat-value">${bikes.filter(b => b.never_rented).length}</div>
+          <div class="stat-sub">no history at all</div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-head">
+          <span class="table-head-title">Idle Bikes</span>
+          <span class="table-count">${bikes.length} bikes</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Bike ID</th>
+              <th>Nickname</th>
+              <th>Rate / min</th>
+              <th>Last Checkout</th>
+              <th>Hours Idle</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${bikes.map(b => `
+              <tr>
+                <td style="font-weight:500">${b.bike_id}</td>
+                <td style="color:#888">${b.nickname || '—'}</td>
+                <td>KES ${fmt(b.rate_per_minute)}</td>
+                <td style="font-size:.72rem">${b.last_checkout_at ? b.last_checkout_at.slice(0,16).replace('T', ' ') : '—'}</td>
+                <td>${b.hours_since_last_activity != null ? b.hours_since_last_activity + 'h' : '—'}</td>
+                <td>
+                  ${b.never_rented
+                    ? '<span class="badge never">Never rented</span>'
+                    : '<span class="badge idle">Idle</span>'}
+                </td>
+              </tr>
+            `).join('') || '<tr><td colspan="6" style="text-align:center;color:#aaa;padding:2rem">No idle bikes — great!</td></tr>'}
+          </tbody>
+        </table>
+      </div>`;
+  } catch (e) {
+    setStatus('idle', 'error', 'Error');
+    el.innerHTML = errorBox(e.message);
+  }
+}
+
+// ─────────────────────────────────────────────
+// 5. TOP CUSTOMERS
+// ─────────────────────────────────────────────
+async function runCustomers() {
+  setStatus('customers', 'loading', 'Loading…');
+  const el = $('customers-content');
+  try {
+    const params = { limit: $('cust-limit').value };
+    const s = $('cust-since').value, u = $('cust-until').value;
+    if (s) params.since = toISO(s);
+    if (u) params.until = toISO(u);
+
+    const data = await apiFetch('/top-customers', params);
+    setStatus('customers', 'ok', 'OK');
+
+    const customers = data.top_customers || [];
+    const maxSpent = Math.max(...customers.map(c => c.total_spent), 1);
+    const totalSpent = customers.reduce((s, c) => s + c.total_spent, 0);
+
+    el.innerHTML = `
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Customers</div>
+          <div class="stat-value">${data.total_customers}</div>
+          <div class="stat-sub">in window</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Revenue (top ${customers.length})</div>
+          <div class="stat-value">KES ${fmt(totalSpent)}</div>
+          <div class="stat-sub">from shown customers</div>
+        </div>
+        ${customers[0] ? `
+        <div class="stat-card gold">
+          <div class="stat-label">#1 Customer</div>
+          <div class="stat-value" style="font-size:1.1rem">${customers[0].name}</div>
+          <div class="stat-sub">KES ${fmt(customers[0].total_spent)}</div>
+        </div>` : ''}
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-head">
+          <span class="table-head-title">Top Customers</span>
+          <span class="table-count">${customers.length} shown</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Rentals</th>
+              <th>Hours</th>
+              <th>Total Spent</th>
+              <th>Last Visit</th>
+              <th style="min-width:120px">Spend Share</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${customers.map((c, i) => `
+              <tr>
+                <td><span class="rank">${i + 1}</span></td>
+                <td style="font-weight:500">${c.name}</td>
+                <td style="color:#888;font-size:.72rem">${c.primary_phone}</td>
+                <td>${c.total_rentals}</td>
+                <td>${c.total_hours}h</td>
+                <td><strong>KES ${fmt(c.total_spent)}</strong></td>
+                <td style="font-size:.72rem;color:#888">${c.last_visit ? c.last_visit.slice(0,10) : '—'}</td>
+                <td>
+                  <div class="bar-wrap">
+                    <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(c.total_spent / maxSpent * 100)}%"></div></div>
+                    <span style="font-size:.65rem;color:#aaa">${Math.round(c.total_spent / totalSpent * 100)}%</span>
+                  </div>
+                </td>
+              </tr>
+            `).join('') || '<tr><td colspan="8" style="text-align:center;color:#aaa;padding:2rem">No data</td></tr>'}
+          </tbody>
+        </table>
+      </div>`;
+  } catch (e) {
+    setStatus('customers', 'error', 'Error');
+    el.innerHTML = errorBox(e.message);
+  }
+}
+
+// ─────────────────────────────────────────────
+// Default dates
+// ─────────────────────────────────────────────
+(function setDefaults() {
+  const today = new Date().toISOString().slice(0, 10);
+  const ago30 = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
+  const monday = (() => {
+    const d = new Date();
+    d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+    return d.toISOString().slice(0, 10);
+  })();
+
+  $('daily-date').value   = today;
+  $('weekly-start').value = monday;
+  $('util-since').value   = ago30;
+  $('util-until').value   = today;
+  $('cust-since').value   = ago30;
+  $('cust-until').value   = today;
+})();
+</script>
+</body>
+</html>

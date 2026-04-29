@@ -8,9 +8,6 @@ from data.models import (
     MpesaTransactionStatus,
 )
 from core import config
-from core.security import (
-    get_current_user,
-)
 
 
 from sqlalchemy.orm import Session

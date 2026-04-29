@@ -4,10 +4,6 @@ from fastapi.responses import JSONResponse
 
 from data.db import get_db
 from data.models import (
-    ShopOwner,
-    Employee,
-    Bike,
-    Shop,
     MpesaCheckout,
     MpesaTransactionStatus,
 )

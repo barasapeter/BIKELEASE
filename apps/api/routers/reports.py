@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import func, cast, Numeric, Integer
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from data.db import get_db
@@ -45,7 +45,7 @@ def _resolve_shop_or_403(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Shop '{shop_id}' not found.",
         )
-
+    
     if isinstance(current_user, ShopOwner):
         if shop.owner_id != current_user.id:
             raise HTTPException(

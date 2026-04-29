@@ -5,8 +5,6 @@ import uuid
 
 from data.db import get_db
 from data.models import (
-    ShopOwner,
-    Employee,
     Bike,
     Customer,
     SessionCheckout,

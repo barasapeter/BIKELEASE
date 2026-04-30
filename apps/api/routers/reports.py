@@ -41,24 +41,28 @@ def _resolve_shop_or_403(
 ) -> Shop:
     shop: Shop | None = db.get(Shop, shop_id)
     if shop is None:
+        print("Trouble... Shop is None")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Shop '{shop_id}' not found.",
         )
-    
+
     if isinstance(current_user, ShopOwner):
+        print("Trouble... You do not own this shop.")
         if shop.owner_id != current_user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="You do not own this shop.",
             )
     elif isinstance(current_user, Employee):
+        print("Trouble... You are not an employee of this shop.")
         if current_user.shop_id != shop_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="You are not an employee of this shop.",
             )
     else:
+        print("Trouble... UserType undefined?")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Unrecognised user type.",

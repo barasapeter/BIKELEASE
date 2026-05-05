@@ -110,7 +110,7 @@
   aside input:focus, aside select:focus { border-color: var(--rust); }
 
   /* Nav */
-  nav { margin-top: 2rem; flex: 1; }
+  nav { margin-top: 2rem; flex: 1; gap: 1rem; }
 
   .nav-label {
     font-size: .6rem;
@@ -129,7 +129,7 @@
     border: none;
     color: #aaa;
     font-family: var(--mono);
-    font-size: .78rem;
+    font-size: 2.0rem;
     padding: .55rem .6rem;
     border-radius: 4px;
     cursor: pointer;
@@ -138,7 +138,7 @@
     margin-bottom: .15rem;
   }
   .nav-btn:hover { background: #1f1f1f; color: var(--paper); }
-  .nav-btn.active { background: var(--rust); color: #fff; }
+  .nav-btn.active { background: var(--rust); color: #000; }
 
   .nav-btn .icon {
     width: 18px; height: 18px;
@@ -152,7 +152,7 @@
     background: var(--rust);
     border: none;
     border-radius: 4px;
-    color: #fff;
+    color: #000;
     font-family: var(--mono);
     font-size: .8rem;
     font-weight: 500;
@@ -476,7 +476,7 @@
 
   <!-- ══════════════ SIDEBAR ══════════════ -->
   <aside>
-    <div class="logo">BileLease<span>Desk</span></div>
+    <div class="logo">My<span>Reports</span></div>
     <div class="logo-sub">Rental Analytics</div>
 
     <div style="display: none;">
@@ -727,7 +727,7 @@ $('run-btn').addEventListener('click', async () => {
     await runners[activePanel]();
   } finally {
     btn.disabled = false;
-    btn.textContent = '▶ Execute';
+    btn.textContent = '▶ Fetch';
   }
 });
 

@@ -309,7 +309,7 @@ async def checkout_session(
                 origin += f":{url.port}"
 
             stk_initiate = await client.initiate_stk_push(
-                phone, amount=round(amount), callback_url=f"{origin}/mpesa-endpoint"
+                phone, amount=round(amount), callback_url=f"{origin}/payments/v1/hook"
             )
             if stk_initiate["success"]:
                 response_description = stk_initiate["detail"]["ResponseDescription"]

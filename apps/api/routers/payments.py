@@ -105,7 +105,7 @@ async def webhook_processor(
         return JSONResponse(
             status_code=200,
             content={"ResultCode": 0, "ResultDesc": "Accepted"},
-        )
+        ) 
 
     except Exception:
         logger.error(f"{request.url.path}\n{traceback.format_exc()}\n\n")

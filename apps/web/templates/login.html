@@ -4,49 +4,270 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BIKELEASE — Sign In</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/css/login.css">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --asphalt:  #0F1014;
+  --carbon:   #1C1E26;
+  --steel:    #2A2D38;
+  --smoke:    #4A4F63;
+  --mist:     #8A8FA8;
+  --chalk:    #F0F0F5;
+  --ember:    #FF4D1C;
+  --ember-dim:#CC3C14;
+  --sky:      #38B6FF;
+  --sky-dim:  #1A8FCC;
+}
+
+body{
+  display:flex;min-height:100vh;
+  font-family:'DM Sans',sans-serif;
+  background:var(--asphalt);color:var(--chalk);
+  overflow:hidden;
+}
+
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:999;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-size:200px;opacity:.5;
+}
+
+/* ── LEFT ── */
+.left{
+  flex:1 1 52%;display:flex;flex-direction:column;
+  justify-content:space-between;padding:48px 56px;
+  position:relative;overflow:hidden;
+  background:var(--carbon);
+  border-right:1px solid var(--steel);
+}
+.left::before,.left::after{
+  content:'';position:absolute;border-radius:50%;pointer-events:none;
+}
+.left::before{
+  bottom:-200px;left:-120px;width:700px;height:700px;
+  border:1px solid rgba(56,182,255,.05);
+}
+.left::after{
+  bottom:-140px;left:-60px;width:520px;height:520px;
+  border:1px solid rgba(56,182,255,.09);
+}
+
+.left-bg{
+  position:absolute;bottom:-30px;right:-20px;
+  font-family:'Bebas Neue',sans-serif;font-size:clamp(140px,18vw,220px);
+  color:var(--steel);line-height:1;pointer-events:none;user-select:none;
+  letter-spacing:-6px;opacity:.45;
+}
+
+.logo{
+  font-family:'Bebas Neue',sans-serif;font-size:1.55rem;
+  letter-spacing:.12em;color:var(--chalk);position:relative;z-index:1;user-select:none;
+}
+.logo span{color:var(--sky);}
+
+.left-body{position:relative;z-index:1;}
+
+.eyebrow{
+  font-family:'Space Mono',monospace;font-size:.65rem;
+  letter-spacing:.22em;text-transform:uppercase;
+  color:var(--sky);margin-bottom:18px;
+  display:flex;align-items:center;gap:10px;
+}
+.eyebrow::before{content:'';width:24px;height:1px;background:var(--sky);}
+
+.left-body h2{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(3.8rem,6.5vw,6rem);
+  line-height:.93;letter-spacing:.01em;
+  color:var(--chalk);margin-bottom:24px;
+}
+.left-body h2 em{font-style:normal;color:var(--sky);}
+
+.left-body p{
+  font-size:.93rem;font-weight:300;line-height:1.72;
+  color:var(--mist);max-width:360px;
+}
+
+.stat-strip{
+  display:flex;gap:40px;position:relative;z-index:1;
+  padding-top:28px;border-top:1px solid var(--steel);
+}
+.s-num{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;line-height:1;color:var(--chalk);}
+.s-num span{font-size:1.3rem;color:var(--sky);margin-left:1px;}
+.s-lbl{font-size:.66rem;color:var(--smoke);margin-top:5px;letter-spacing:.07em;text-transform:uppercase;}
+
+/* ── RIGHT ── */
+.right{
+  flex:0 0 44%;max-width:520px;display:flex;
+  align-items:center;justify-content:center;
+  padding:40px 36px;
+  background:var(--asphalt);
+  position:relative;overflow:hidden;
+}
+.right::before{
+  content:'';position:absolute;top:-100px;right:-80px;
+  width:360px;height:360px;border-radius:50%;
+  background:radial-gradient(circle,rgba(56,182,255,.04) 0%,transparent 70%);
+  pointer-events:none;
+}
+
+.form-wrap{
+  width:100%;max-width:390px;
+  background:var(--carbon);
+  border:1px solid var(--steel);
+  border-radius:20px;padding:42px 38px 38px;
+  position:relative;
+  box-shadow:0 24px 64px rgba(0,0,0,.45),0 4px 16px rgba(0,0,0,.3);
+}
+.form-wrap::before{
+  content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);
+}
+
+.form-header{margin-bottom:30px;}
+.form-header h1{
+  font-family:'Bebas Neue',sans-serif;font-size:2.2rem;
+  letter-spacing:.08em;color:var(--chalk);margin-bottom:7px;
+}
+.form-header p{font-size:.82rem;color:var(--smoke);}
+.form-header p a{color:var(--sky);text-decoration:none;font-weight:500;transition:opacity .15s;}
+.form-header p a:hover{opacity:.75;}
+
+.field{margin-bottom:16px;}
+.field label{
+  display:block;font-size:.68rem;font-weight:500;
+  letter-spacing:.10em;text-transform:uppercase;
+  color:var(--mist);margin-bottom:7px;
+}
+.field-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
+.field-row label{margin-bottom:0;}
+.field-row a{font-size:.72rem;color:var(--smoke);text-decoration:none;transition:color .15s;}
+.field-row a:hover{color:var(--sky);}
+
+input[type=text],input[type=password]{
+  width:100%;padding:11px 14px;
+  background:var(--steel);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:10px;color:var(--chalk);
+  font-family:'DM Sans',sans-serif;font-size:.93rem;
+  outline:none;-webkit-appearance:none;
+  transition:border-color .18s,box-shadow .18s,background .18s;
+  caret-color:var(--sky);
+}
+input[type=text]::placeholder,input[type=password]::placeholder{color:var(--smoke);}
+input[type=text]:hover,input[type=password]:hover{border-color:rgba(255,255,255,.12);}
+input[type=text]:focus,input[type=password]:focus{
+  border-color:var(--sky);
+  background:rgba(56,182,255,.06);
+  box-shadow:0 0 0 3px rgba(56,182,255,.12);
+}
+
+.remember{
+  display:flex;align-items:center;gap:10px;
+  cursor:pointer;margin:20px 0 26px;user-select:none;
+}
+.remember input[type=checkbox]{
+  appearance:none;-webkit-appearance:none;
+  width:16px;height:16px;border-radius:5px;
+  border:1px solid var(--smoke);background:var(--steel);
+  cursor:pointer;flex-shrink:0;position:relative;
+  transition:border-color .15s,background .15s,box-shadow .15s;
+}
+.remember input:checked{
+  background:var(--sky);border-color:var(--sky);
+  box-shadow:0 0 0 2.5px rgba(56,182,255,.2);
+}
+.remember input:checked::after{
+  content:'';position:absolute;top:2px;left:5px;
+  width:5px;height:8px;border:2px solid var(--asphalt);
+  border-top:none;border-left:none;transform:rotate(45deg);
+}
+.remember span{font-size:.82rem;color:var(--mist);}
+
+.btn-primary{
+  width:100%;padding:13px;
+  background:var(--ember);border:none;
+  border-radius:10px;color:#fff;
+  font-family:'Bebas Neue',sans-serif;font-size:1.08rem;letter-spacing:.14em;
+  cursor:pointer;position:relative;overflow:hidden;
+  box-shadow:0 4px 20px rgba(255,77,28,.28),0 1px 3px rgba(0,0,0,.3);
+  transition:transform .13s,box-shadow .13s,background .13s;
+}
+.btn-primary::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.10) 0%,transparent 60%);
+  pointer-events:none;
+}
+.btn-primary:hover{
+  background:var(--ember-dim);transform:translateY(-1px);
+  box-shadow:0 8px 28px rgba(255,77,28,.38),0 2px 6px rgba(0,0,0,.3);
+}
+.btn-primary:active{transform:scale(.985);box-shadow:0 2px 10px rgba(255,77,28,.2);}
+
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--steel);}
+.divider span{font-size:.65rem;letter-spacing:.14em;color:var(--smoke);font-family:'Space Mono',monospace;}
+
+.btn-ghost{
+  width:100%;padding:11px;
+  background:transparent;border:1px solid var(--steel);
+  border-radius:10px;color:var(--mist);
+  font-family:'DM Sans',sans-serif;font-size:.86rem;font-weight:500;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  cursor:pointer;transition:background .15s,border-color .15s,color .15s,transform .13s;
+}
+.btn-ghost:hover{background:var(--steel);border-color:var(--smoke);color:var(--chalk);transform:translateY(-1px);}
+.btn-ghost:active{transform:none;}
+
+.register-link{
+  text-align:center;margin-top:20px;
+  font-size:.8rem;color:var(--smoke);
+}
+.register-link a{color:var(--sky);text-decoration:none;font-weight:500;transition:opacity .15s;}
+.register-link a:hover{opacity:.75;}
+
+@media(max-width:860px){
+  body{flex-direction:column;overflow:auto;}
+  .left{flex:none;min-height:42vh;padding:36px 28px;border-right:none;border-bottom:1px solid var(--steel);}
+  .left-body h2{font-size:clamp(3rem,11vw,5rem);}
+  .left-bg{font-size:140px;}
+  .right{flex:none;max-width:100%;padding:36px 20px 52px;}
+}
+@media(max-width:480px){
+  .form-wrap{padding:28px 22px 24px;}
+  .stat-strip{gap:24px;}
+}
+</style>
 </head>
 <body>
 
-<!-- LEFT --> 
 <div class="left">
+  <div class="left-bg">BL</div>
   <div class="logo">BIKE<span>LEASE</span></div>
-
   <div class="left-body">
     <div class="eyebrow">Your urban fleet</div>
     <h2>RIDE<br>ON YOUR<br><em>TERMS.</em></h2>
     <p>Lease premium bikes by the day, week, or month. Pick up from any of our hubs — no contracts, no hassle.</p>
   </div>
-
   <div class="stat-strip">
-    <div>
-      <div class="s-num">200<span>+</span></div>
-      <div class="s-lbl">Bikes available</div>
-    </div>
-    <div>
-      <div class="s-num">18</div>
-      <div class="s-lbl">City hubs</div>
-    </div>
-    <div>
-      <div class="s-num">4.9<span>★</span></div>
-      <div class="s-lbl">Avg. rating</div>
-    </div>
+    <div><div class="s-num">200<span>+</span></div><div class="s-lbl">Bikes available</div></div>
+    <div><div class="s-num">18</div><div class="s-lbl">City hubs</div></div>
+    <div><div class="s-num">4.9<span>★</span></div><div class="s-lbl">Avg. rating</div></div>
   </div>
 </div>
 
-<!-- RIGHT -->
 <div class="right">
   <div class="form-wrap">
-
     <div class="form-header">
       <h1>SIGN IN</h1>
-      <p>No account? <a href="#">Create one free →</a></p>
+      <p>No account? <a href="/register">Register free →</a></p>
     </div>
 
     <div class="field">
       <label>Username</label>
-      <input type="text" placeholder="tom" id="username">
+      <input type="text" id="username" placeholder="tom" autocomplete="username">
     </div>
 
     <div class="field">
@@ -54,9 +275,8 @@
         <label>PIN</label>
         <a href="#">Forgot PIN?</a>
       </div>
-      <input id="pin" type="password" placeholder="••••" autocomplete="current-password">
+      <input type="password" id="pin" placeholder="••••" autocomplete="current-password">
     </div>
-    <!-- default user is "owner" -->
 
     <label class="remember">
       <input type="checkbox">
@@ -68,17 +288,21 @@
     <div class="divider"><span>OR</span></div>
 
     <button class="btn-ghost">
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-        <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z" fill="#4285F4"/>
+      <svg width="17" height="17" viewBox="0 0 18 18" fill="none">
+        <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908C16.658 14.253 17.64 11.945 17.64 9.2Z" fill="#4285F4"/>
         <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z" fill="#34A853"/>
         <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332Z" fill="#FBBC05"/>
         <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58Z" fill="#EA4335"/>
       </svg>
       Continue with Google
     </button>
+
+    <div class="register-link">
+      New to BikeLease? <a href="/register">Create an account</a>
+    </div>
   </div>
 </div>
-<script src="/static/js/login.js"></script>
 
+<script src="/static/js/login.js"></script>
 </body>
 </html>

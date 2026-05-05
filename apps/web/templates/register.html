@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIKELEASE — Register</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=Space+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --asphalt:  #0F1014;
+  --carbon:   #1C1E26;
+  --steel:    #2A2D38;
+  --smoke:    #4A4F63;
+  --mist:     #8A8FA8;
+  --chalk:    #F0F0F5;
+  --ember:    #FF4D1C;
+  --ember-dim:#CC3C14;
+  --sky:      #38B6FF;
+  --sky-dim:  #1A8FCC;
+}
+
+body{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  font-family:'DM Sans',sans-serif;
+  background:var(--asphalt);color:var(--chalk);
+  padding:24px;
+}
+
+/* noise */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:999;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-size:200px;opacity:.45;
+}
+
+/* subtle radial glow behind card */
+body::before{
+  content:'';position:fixed;
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  width:600px;height:600px;border-radius:50%;
+  background:radial-gradient(circle,rgba(56,182,255,.05) 0%,transparent 70%);
+  pointer-events:none;
+}
+
+/* ── CARD ── */
+.card{
+  width:100%;max-width:420px;
+  background:var(--carbon);
+  border:1px solid var(--steel);
+  border-radius:20px;
+  padding:44px 40px 40px;
+  position:relative;
+  box-shadow:0 24px 64px rgba(0,0,0,.5),0 4px 16px rgba(0,0,0,.3);
+  animation:rise .45s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+
+/* top gloss line */
+.card::before{
+  content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent);
+}
+
+/* ── HEADER ── */
+.logo{
+  font-family:'Bebas Neue',sans-serif;font-size:1.4rem;
+  letter-spacing:.12em;color:var(--chalk);margin-bottom:28px;
+  display:flex;align-items:center;gap:8px;
+}
+.logo span{color:var(--sky);}
+.logo-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--ember);margin-left:2px;margin-bottom:2px;
+  display:inline-block;
+}
+
+.card-title{
+  font-family:'Bebas Neue',sans-serif;font-size:2rem;
+  letter-spacing:.06em;color:var(--chalk);margin-bottom:6px;
+}
+.card-sub{font-size:.82rem;color:var(--smoke);margin-bottom:30px;}
+.card-sub a{color:var(--sky);text-decoration:none;font-weight:500;transition:opacity .15s;}
+.card-sub a:hover{opacity:.75;}
+
+/* ── FIELDS ── */
+.field{margin-bottom:18px;}
+
+.field label{
+  display:block;font-size:.67rem;font-weight:500;
+  letter-spacing:.10em;text-transform:uppercase;
+  color:var(--mist);margin-bottom:7px;
+}
+
+.input-wrap{position:relative;}
+
+.input-wrap svg{
+  position:absolute;left:13px;top:50%;transform:translateY(-50%);
+  width:15px;height:15px;color:var(--smoke);pointer-events:none;
+  transition:color .18s;
+}
+
+input{
+  width:100%;padding:11px 14px 11px 40px;
+  background:var(--steel);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:10px;color:var(--chalk);
+  font-family:'DM Sans',sans-serif;font-size:.93rem;
+  outline:none;-webkit-appearance:none;
+  transition:border-color .18s,box-shadow .18s,background .18s;
+  caret-color:var(--sky);
+}
+input::placeholder{color:var(--smoke);}
+input:hover{border-color:rgba(255,255,255,.12);}
+input:focus{
+  border-color:var(--sky);
+  background:rgba(56,182,255,.06);
+  box-shadow:0 0 0 3px rgba(56,182,255,.12);
+}
+input:focus~svg,.input-wrap:focus-within svg{color:var(--sky);}
+
+/* pin row */
+.pin-row{display:flex;gap:10px;}
+.pin-row .input-wrap{flex:1;}
+
+.toggle-pin{
+  background:var(--steel);border:1px solid rgba(255,255,255,.06);
+  border-radius:10px;padding:0 14px;color:var(--smoke);
+  font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.06em;
+  cursor:pointer;transition:color .15s,border-color .15s;white-space:nowrap;
+}
+.toggle-pin:hover{color:var(--chalk);border-color:rgba(255,255,255,.14);}
+
+/* hint */
+.hint{
+  font-size:.72rem;color:var(--smoke);margin-top:6px;
+  font-family:'Space Mono',monospace;letter-spacing:.03em;
+}
+.hint.error{color:var(--ember);}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:var(--steel);margin:26px 0;}
+
+/* ── SUBMIT ── */
+.btn{
+  width:100%;padding:13px;
+  background:var(--ember);border:none;
+  border-radius:10px;color:#fff;
+  font-family:'Bebas Neue',sans-serif;font-size:1.08rem;letter-spacing:.14em;
+  cursor:pointer;position:relative;overflow:hidden;
+  box-shadow:0 4px 20px rgba(255,77,28,.28),0 1px 3px rgba(0,0,0,.3);
+  transition:transform .13s,box-shadow .13s,background .13s;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.btn::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.10) 0%,transparent 60%);
+  pointer-events:none;
+}
+.btn:hover:not(:disabled){
+  background:var(--ember-dim);transform:translateY(-1px);
+  box-shadow:0 8px 28px rgba(255,77,28,.38),0 2px 6px rgba(0,0,0,.3);
+}
+.btn:active:not(:disabled){transform:scale(.985);}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+
+.spinner{
+  width:17px;height:17px;
+  border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;
+  animation:spin .7s linear infinite;display:none;flex-shrink:0;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.btn.loading .spinner{display:block;}
+.btn.loading .btn-label{opacity:.6;}
+.btn.loading .btn-arrow{display:none;}
+
+/* ── LOGIN LINK ── */
+.login-link{
+  text-align:center;margin-top:20px;
+  font-size:.8rem;color:var(--smoke);
+}
+.login-link a{color:var(--sky);text-decoration:none;font-weight:500;transition:opacity .15s;}
+.login-link a:hover{opacity:.75;}
+
+/* ── SWEETALERT THEME ── */
+.swal2-popup{
+  background:var(--carbon)!important;
+  border:1px solid var(--steel)!important;
+  border-radius:16px!important;
+  font-family:'DM Sans',sans-serif!important;
+  color:var(--chalk)!important;
+}
+.swal2-title{
+  color:var(--chalk)!important;
+  font-family:'Bebas Neue',sans-serif!important;
+  font-size:1.9rem!important;letter-spacing:.06em!important;
+}
+.swal2-html-container{color:var(--mist)!important;font-size:.9rem!important;line-height:1.6!important;}
+.swal2-confirm{background:var(--ember)!important;border-radius:8px!important;font-weight:600!important;}
+.swal2-cancel{background:var(--steel)!important;border-radius:8px!important;color:var(--chalk)!important;}
+.swal2-icon.swal2-success .swal2-success-ring{border-color:rgba(56,182,255,.25)!important;}
+.swal2-icon.swal2-success [class^=swal2-success-line]{background:var(--sky)!important;}
+.swal2-icon.swal2-error{border-color:rgba(255,77,28,.4)!important;}
+.swal2-icon.swal2-error [class^=swal2-x-mark-line]{background:var(--ember)!important;}
+.swal2-icon.swal2-warning{border-color:rgba(56,182,255,.3)!important;color:var(--sky)!important;}
+
+@media(max-width:480px){
+  .card{padding:32px 24px 28px;}
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <div class="logo">BIKE<span>LEASE</span><span class="logo-dot"></span></div>
+
+  <div class="card-title">CREATE ACCOUNT</div>
+  <div class="card-sub">Already have one? <a href="/login">Sign in →</a></div>
+
+  <!-- Full name -->
+  <div class="field">
+    <label>Full Name</label>
+    <div class="input-wrap">
+      <input type="text" id="name" placeholder="Ada Odhiambo" autocomplete="name">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Username -->
+  <div class="field">
+    <label>Username</label>
+    <div class="input-wrap">
+      <input type="text" id="username" placeholder="ada.odhiambo" autocomplete="username" oninput="slugify(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+      </svg>
+    </div>
+    <div class="hint" id="usernameHint">Lowercase letters, numbers, and dots only</div>
+  </div>
+
+  <!-- PIN -->
+  <div class="field">
+    <label>PIN</label>
+    <div class="pin-row">
+      <div class="input-wrap">
+        <input type="password" id="pin" placeholder="••••••" maxlength="8" inputmode="numeric" autocomplete="new-password">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+      <button class="toggle-pin" type="button" onclick="togglePin()">SHOW</button>
+    </div>
+    <div class="hint" id="pinHint">4–8 digits</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <button class="btn" id="submitBtn" onclick="handleRegister()">
+    <div class="spinner" id="spinner"></div>
+    <span class="btn-label">REGISTER</span>
+    <svg class="btn-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 12h14M12 5l7 7-7 7"/>
+    </svg>
+  </button>
+
+  <div class="login-link">Already have an account? <a href="/login">Sign in</a></div>
+
+</div>
+
+<script>
+  const nameEl     = document.getElementById('name');
+  const userEl     = document.getElementById('username');
+  const pinEl      = document.getElementById('pin');
+  const btn        = document.getElementById('submitBtn');
+  const spinner    = document.getElementById('spinner');
+  const userHint   = document.getElementById('usernameHint');
+  const pinHint    = document.getElementById('pinHint');
+
+  // Auto-lowercase + slug username
+  function slugify(el) {
+    const pos = el.selectionStart;
+    el.value = el.value.toLowerCase().replace(/[^a-z0-9.]/g, '');
+    el.setSelectionRange(pos, pos);
+    userHint.textContent = 'Lowercase letters, numbers, and dots only';
+    userHint.classList.remove('error');
+  }
+
+  // Toggle PIN visibility
+  function togglePin() {
+    const isPass = pinEl.type === 'password';
+    pinEl.type = isPass ? 'text' : 'password';
+    event.currentTarget.textContent = isPass ? 'HIDE' : 'SHOW';
+  }
+
+  // Validate
+  function validate() {
+    const name     = nameEl.value.trim();
+    const username = userEl.value.trim();
+    const pin      = pinEl.value.trim();
+
+    if (!name) return { ok: false, msg: 'Full name is required.', field: nameEl };
+    if (!username) return { ok: false, msg: 'Username is required.', field: userEl };
+    if (username.length < 3) return { ok: false, msg: 'Username must be at least 3 characters.', field: userEl };
+    if (!/^\d{4,8}$/.test(pin)) return { ok: false, msg: 'PIN must be 4–8 digits.', field: pinEl };
+    return { ok: true };
+  }
+
+  async function handleRegister() {
+    const check = validate();
+    if (!check.ok) {
+      check.field?.focus();
+      Swal.fire({
+        title: 'Hold On',
+        html: check.msg,
+        icon: 'warning',
+        confirmButtonText: 'Fix It',
+        customClass:{popup:'swal2-popup',title:'swal2-title',htmlContainer:'swal2-html-container',confirmButton:'swal2-confirm'}
+      });
+      return;
+    }
+
+    const payload = {
+      name:     nameEl.value.trim(),
+      username: userEl.value.trim(),
+      pin:      pinEl.value.trim(),
+    };
+
+    // loading
+    btn.disabled = true;
+    btn.classList.add('loading');
+
+    try {
+      const res  = await fetch('/auth/v1/create-shop-owner', {
+        method:  'POST',
+        headers: {'Content-Type':'application/json'},
+        body:    JSON.stringify(payload),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok) {
+        await Swal.fire({
+          title: 'Account Created',
+          html:  `Welcome, <strong style="color:var(--chalk)">${payload.name}</strong>.<br>You can now sign in with your username and PIN.`,
+          icon:  'success',
+          confirmButtonText: 'Sign In',
+          customClass:{popup:'swal2-popup',title:'swal2-title',htmlContainer:'swal2-html-container',confirmButton:'swal2-confirm'}
+        });
+        window.location.href = '/login';
+
+      } else if (res.status === 409) {
+        Swal.fire({
+          title: 'Already Exists',
+          html:  `The username <strong style="color:var(--chalk)">${payload.username}</strong> is already taken. Try a different one.`,
+          icon:  'error',
+          confirmButtonText: 'Try Again',
+          customClass:{popup:'swal2-popup',title:'swal2-title',htmlContainer:'swal2-html-container',confirmButton:'swal2-confirm'}
+        });
+        userEl.focus();
+
+      } else {
+        const msg = data.detail || `Server error (${res.status})`;
+        Swal.fire({
+          title: 'Something Went Wrong',
+          html:  msg,
+          icon:  'error',
+          confirmButtonText: 'OK',
+          customClass:{popup:'swal2-popup',title:'swal2-title',htmlContainer:'swal2-html-container',confirmButton:'swal2-confirm'}
+        });
+      }
+
+    } catch (err) {
+      Swal.fire({
+        title: 'Connection Error',
+        html:  `Could not reach the server.<br><code style="color:var(--ember);font-size:.8rem">${err.message}</code>`,
+        icon:  'error',
+        confirmButtonText: 'Retry',
+        customClass:{popup:'swal2-popup',title:'swal2-title',htmlContainer:'swal2-html-container',confirmButton:'swal2-confirm'}
+      });
+    } finally {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+    }
+  }
+
+  // Enter key support
+  [nameEl, userEl, pinEl].forEach(el =>
+    el.addEventListener('keydown', e => { if (e.key === 'Enter') handleRegister(); })
+  );
+</script>
+</body>
+</html>

@@ -45,7 +45,7 @@
         MY <em>SHOP{% if shops|length != 1 %}S{% endif %}</em>
         </div>
     </div>
-    {% if shops|length > 1 %}
+    {% if shops|length >= 0 %}
     <div class="count-badge" onclick="window.location.href='add-shop'" style="cursor: pointer;">
       <span class="count-num">{{ shops | length }}</span>
       <span class="count-label">Shop{{ 's' if shops | length != 1 else '' }}</span>
@@ -104,6 +104,9 @@
       <div class="empty-state">
         <div class="empty-state-icon">🚲</div>
         <p>No shops registered yet</p>
+        <div class="count-badge" onclick="window.location.href='add-shop'" style="cursor: pointer;">
+          <span class="count-num">Register Shop</span>
+        </div>
       </div>
     {% endif %}
 

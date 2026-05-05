@@ -388,3 +388,11 @@ async def session_view(
 ):
     context = {"request": request}
     return templates.TemplateResponse("add-shop.html", context)
+
+
+@router.get("/register")
+async def session_view(
+    request: Request,
+):
+    context = {"request": request}
+    return templates.TemplateResponse("register.html", context)

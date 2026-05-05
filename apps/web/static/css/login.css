@@ -475,7 +475,7 @@ input[type="password"]:focus {
   .right {
     flex: none;
     max-width: 100%;
-    border-left: none;
+    border-left: none; 
     border-top: 1px solid var(--glass-border);
     padding: 40px 24px 56px;
   }

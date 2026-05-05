@@ -63,7 +63,7 @@
     </div>
 
     <!-- ── BIKE ── -->
-    <div class="card-section">
+    <div class="card-section" style="display: none;">
       <div class="section-heading">Bike</div>
       <div class="data-grid">
         <div class="data-cell">
@@ -81,7 +81,7 @@
 
     <!-- ── SESSION DETAILS ── -->
     <div class="card-section">
-      <div class="section-heading">Session Details</div>
+      <div class="section-heading" style="display: none;">Session Details</div>
       <div class="data-grid three-col">
         <div class="data-cell">
           <div class="data-label">Rate / min</div>
@@ -105,7 +105,7 @@
     <!-- ── LIVE STATS (ongoing only) ── -->
     {% if not session.stop_datetime %}
     <div class="card-section">
-      <div class="section-heading">Live Metrics</div>
+      <div class="section-heading" style="display: none;">Live Metrics</div>
       <div class="live-row">
         <div class="live-cell">
           <div class="live-label"><span class="live-indicator"></span>Duration</div>
@@ -320,7 +320,11 @@
     const amount = (diffSec / 60) * RPM;
 
     document.getElementById('live-duration').textContent = formatDuration(diffSec);
-    document.getElementById('live-amount').textContent = 'KES ' + amount.toFixed(2);
+    document.getElementById('live-amount').textContent =
+    'KES ' + amount.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
 
     // keep modal preview in sync
     const mDur = document.getElementById('modal-duration');

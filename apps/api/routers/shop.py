@@ -20,6 +20,7 @@ SETTINGS = config.GlobalSettings()
 logger = logging.getLogger(SETTINGS.APP_NAME)
 
 
+
 @router.post("/create-shop")
 async def create_shop_owner(
     request: Request,

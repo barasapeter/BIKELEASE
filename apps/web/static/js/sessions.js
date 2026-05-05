@@ -149,7 +149,7 @@ document.getElementById('skeleton-list').style.display = 'none';
 }
 
 function showError(msg) {
-const el = document.getElementById('error-state');
+const el = document.getElementById('error-state'); 
 el.textContent = `Error: ${msg}`;
 el.classList.add('visible');
 document.getElementById('header-meta').textContent = 'Failed to load';

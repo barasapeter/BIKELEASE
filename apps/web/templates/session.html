@@ -78,8 +78,9 @@
         </div>
       </div>
     </div>
+    
 
-    <!-- ── SESSION DETAILS ── -->
+    <!-- ── SESSION DETAILS ── --> 
     <div class="card-section">
       <div class="section-heading" style="display: none;">Session Details</div>
       <div class="data-grid three-col">
@@ -190,6 +191,9 @@
       <button class="btn btn-stop" onclick="openStopModal()">
         ⏹ Stop &amp; Bill
       </button>
+    {% endif %}
+    {% if session.checkout.mpesa %}
+    <h1>M-PESA: <span style="color: #00A651;">{{ session.checkout.mpesa.transaction_status_desc or "Prompt in Progress..." }}</span></h1>
     {% endif %}
   </div>
 

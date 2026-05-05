@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DOMAIN="speedy.cardlabs.cloud"
+DOMAIN="eu.cardlabs.cloud"
 EMAIL="barasapeter52@gmail.com"
 REPO="https://github.com/barasapeter/BIKELEASE.git"
 APP_DIR="/home/ubuntu/BIKELEASE"

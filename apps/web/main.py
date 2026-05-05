@@ -378,3 +378,13 @@ async def session_view(
 ):
     context = {"request": request, "shop_id": shop_id}
     return templates.TemplateResponse("reports.html", context)
+
+
+@router.get("/add-shop")
+async def session_view(
+    request: Request,
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user_optional),
+):
+    context = {"request": request}
+    return templates.TemplateResponse("add-shop.html", context)

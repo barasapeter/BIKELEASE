@@ -19,3 +19,4 @@ alembic
 psycopg2-binary
 filelock
 reportlab
+python-jose[cryptography]

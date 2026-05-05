@@ -46,7 +46,7 @@
         </div>
     </div>
     {% if shops|length > 1 %}
-    <div class="count-badge">
+    <div class="count-badge" onclick="window.location.href='add-shop'" style="cursor: pointer;">
       <span class="count-num">{{ shops | length }}</span>
       <span class="count-label">Shop{{ 's' if shops | length != 1 else '' }}</span>
     </div>

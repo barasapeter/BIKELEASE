@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Shop — BikeLease</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --asphalt:   #0F1014;
+    --carbon:    #1C1E26;
+    --steel:     #2A2D38;
+    --smoke:     #4A4F63;
+    --mist:      #8A8FA8;
+    --chalk:     #F0F0F5;
+    --white:     #FFFFFF;
+    --ember:     #FF4D1C;
+    --ember-dim: #CC3C14;
+    --sky:       #38B6FF;
+    --sky-dim:   #1A8FCC;
+    --volt:      #C8F400;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--asphalt);
+    color: var(--chalk);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ─── GRID LAYOUT ─── */
+  .page-wrapper {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* ─── LEFT PANEL ─── */
+  .left-panel {
+    position: relative;
+    background: var(--carbon);
+    border-right: 1px solid var(--steel);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 56px 52px;
+    overflow: hidden;
+  }
+
+  /* noise texture overlay */
+  .left-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  /* big decorative number */
+  .left-panel::after {
+    content: '01';
+    position: absolute;
+    bottom: -40px;
+    right: -20px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 260px;
+    color: var(--steel);
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+    letter-spacing: -8px;
+    opacity: 0.5;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .brand-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--sky);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .brand-icon svg { width: 20px; height: 20px; }
+
+  .brand-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 3px;
+    color: var(--chalk);
+  }
+
+  .left-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .step-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--sky);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .step-label::before {
+    content: '';
+    width: 28px;
+    height: 1px;
+    background: var(--sky);
+  }
+
+  .left-heading {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(52px, 5vw, 80px);
+    line-height: 0.92;
+    letter-spacing: 1px;
+    color: var(--chalk);
+    margin-bottom: 24px;
+  }
+
+  .left-heading em {
+    font-style: normal;
+    color: var(--sky);
+  }
+
+  .left-body {
+    font-size: 14px;
+    color: var(--mist);
+    line-height: 1.75;
+    max-width: 340px;
+  }
+
+  .info-pills {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 40px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .pill {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--steel);
+    border-radius: 10px;
+    font-size: 13px;
+    color: var(--mist);
+    transition: border-color 0.2s;
+  }
+
+  .pill:hover { border-color: var(--smoke); }
+
+  .pill-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .pill-icon.sky   { background: rgba(56,182,255,0.12); color: var(--sky); }
+  .pill-icon.ember { background: rgba(255,77,28,0.12);  color: var(--ember); }
+
+  .pill strong { color: var(--chalk); font-weight: 500; display: block; font-size: 13px; }
+  .pill span   { font-size: 11px; }
+
+  /* ─── RIGHT PANEL ─── */
+  .right-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 56px 52px;
+    background: var(--asphalt);
+  }
+
+  .form-container {
+    width: 100%;
+    max-width: 460px;
+    animation: slideUp 0.5s cubic-bezier(0.22,1,0.36,1) both;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .form-header {
+    margin-bottom: 40px;
+  }
+
+  .form-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--smoke);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .form-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    letter-spacing: 1px;
+    color: var(--chalk);
+    line-height: 1;
+    margin-bottom: 10px;
+  }
+
+  .form-sub {
+    font-size: 13px;
+    color: var(--smoke);
+    line-height: 1.6;
+  }
+
+  /* ─── FIELD GROUPS ─── */
+  .field {
+    margin-bottom: 24px;
+  }
+
+  .field label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.8px;
+    color: var(--mist);
+    text-transform: uppercase;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .field label span {
+    color: var(--ember);
+    font-size: 10px;
+    letter-spacing: 2px;
+  }
+
+  .input-wrap {
+    position: relative;
+  }
+
+  .input-wrap svg {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: var(--smoke);
+    pointer-events: none;
+    transition: color 0.2s;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 15px 16px 15px 44px;
+    background: var(--carbon);
+    border: 1px solid var(--steel);
+    border-radius: 10px;
+    color: var(--chalk);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    caret-color: var(--sky);
+  }
+
+  input[type="text"]::placeholder { color: var(--smoke); }
+
+  input[type="text"]:focus {
+    border-color: var(--sky);
+    background: rgba(56,182,255,0.04);
+    box-shadow: 0 0 0 3px rgba(56,182,255,0.1);
+  }
+
+  input[type="text"]:focus + svg,
+  .input-wrap:focus-within svg { color: var(--sky); }
+
+  /* trick: icon is before input in DOM order for sibling trick? No, use wrap */
+  .input-wrap input:focus ~ svg { color: var(--sky); }
+
+  /* reorder: icon first for the CSS trick */
+  .input-wrap { display: flex; flex-direction: column; }
+  .input-wrap { position: relative; }
+
+  /* ─── CHAR COUNTER ─── */
+  .char-hint {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--smoke);
+    transition: color 0.2s;
+  }
+
+  .char-hint.warn { color: var(--ember); }
+
+  /* ─── DIVIDER ─── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--steel), transparent);
+    margin: 32px 0;
+  }
+
+  /* ─── ENDPOINT PREVIEW ─── */
+  .endpoint-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: var(--carbon);
+    border: 1px solid var(--steel);
+    border-radius: 8px;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+
+  .method-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: rgba(56,182,255,0.15);
+    color: var(--sky);
+    flex-shrink: 0;
+  }
+
+  .endpoint-path {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--mist);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .endpoint-path em {
+    font-style: normal;
+    color: var(--chalk);
+  }
+
+  /* ─── SUBMIT BUTTON ─── */
+  .submit-btn {
+    width: 100%;
+    padding: 16px 24px;
+    background: var(--ember);
+    color: var(--white);
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .submit-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent);
+    pointer-events: none;
+  }
+
+  .submit-btn:hover:not(:disabled) {
+    background: var(--ember-dim);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 32px rgba(255,77,28,0.35);
+  }
+
+  .submit-btn:active:not(:disabled) { transform: translateY(0); }
+
+  .submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* ─── SPINNER ─── */
+  .spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .btn-text { transition: opacity 0.2s; }
+  .submit-btn.loading .spinner { display: block; }
+  .submit-btn.loading .btn-text { opacity: 0.6; }
+  .submit-btn.loading .btn-arrow { display: none; }
+
+  /* ─── PAYLOAD PREVIEW ─── */
+  .payload-preview {
+    margin-top: 24px;
+    padding: 16px 18px;
+    background: var(--carbon);
+    border: 1px solid var(--steel);
+    border-radius: 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--mist);
+    line-height: 1.9;
+  }
+
+  .payload-preview .key   { color: var(--sky); }
+  .payload-preview .val   { color: var(--chalk); }
+  .payload-preview .brace { color: var(--smoke); }
+
+  /* ─── SWEETALERT CUSTOM ─── */
+  .swal2-popup {
+    background: var(--carbon) !important;
+    border: 1px solid var(--steel) !important;
+    border-radius: 16px !important;
+    font-family: 'DM Sans', sans-serif !important;
+    color: var(--chalk) !important;
+  }
+  .swal2-title { color: var(--chalk) !important; font-family: 'Bebas Neue', sans-serif !important; font-size: 32px !important; letter-spacing: 1px !important; }
+  .swal2-html-container { color: var(--mist) !important; font-size: 14px !important; }
+  .swal2-confirm { background: var(--ember) !important; border-radius: 8px !important; font-weight: 600 !important; }
+  .swal2-cancel  { background: var(--steel) !important; border-radius: 8px !important; color: var(--chalk) !important; }
+  .swal2-icon.swal2-success .swal2-success-ring { border-color: rgba(56,182,255,0.3) !important; }
+  .swal2-icon.swal2-success [class^="swal2-success-line"] { background: var(--sky) !important; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 860px) {
+    .page-wrapper { grid-template-columns: 1fr; }
+    .left-panel {
+      padding: 40px 28px 48px;
+      border-right: none;
+      border-bottom: 1px solid var(--steel);
+    }
+    .left-panel::after { font-size: 160px; bottom: -20px; }
+    .right-panel { padding: 40px 28px; align-items: flex-start; }
+    .info-pills { flex-direction: row; flex-wrap: wrap; }
+    .pill { flex: 1; min-width: 200px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+  <!-- ─── LEFT PANEL ─── -->
+  <div class="left-panel">
+
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--asphalt)">
+          <circle cx="5.5" cy="17.5" r="3.5"/>
+          <circle cx="18.5" cy="17.5" r="3.5"/>
+          <path d="M8.5 17.5h6M15 6l-3 11.5M9 6h6l3 5.5H6L9 6z"/>
+        </svg>
+      </div>
+      <div class="brand-name">BIKELEASE</div>
+    </div>
+
+    <div class="left-content">
+      <div class="step-label">Network Expansion</div>
+      <h2 class="left-heading">
+        Add a<br>
+        New<br>
+        <em>Shop</em>
+      </h2>
+      <p class="left-body">
+        Register a new bike shop into the BikeLease network. Once added, the location becomes discoverable for riders and can begin accepting leases.
+      </p>
+    </div>
+
+    <div class="info-pills">
+      <div class="pill">
+        <div class="pill-icon sky">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+          </svg>
+        </div>
+        <div>
+          <strong>Location Mapped</strong>
+          <span>Shop gets pinned to the fleet map instantly</span>
+        </div>
+      </div>
+      <div class="pill">
+        <div class="pill-icon ember">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+          </svg>
+        </div>
+        <div>
+          <strong>Live Immediately</strong>
+          <span>No approval delay — goes live on creation</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ─── RIGHT PANEL ─── -->
+  <div class="right-panel">
+    <div class="form-container">
+
+      <div class="form-header">
+        <div class="form-eyebrow">Shop Registration</div>
+        <div class="form-title">Shop Details</div>
+        <div class="form-sub">Fill in the details below to register a new shop in the system.</div>
+      </div>
+
+      <!-- Endpoint bar -->
+      <div class="endpoint-bar" style="display: none;">
+        <div class="method-badge">POST</div>
+        <div class="endpoint-path"><em>/shop/v1/</em>create-shop</div>
+      </div>
+
+      <!-- Form -->
+      <div class="field">
+        <label>
+          Shop Name
+          <span>required</span>
+        </label>
+        <div class="input-wrap">
+          <input type="text" id="shopName" placeholder="e.g. Adden Bikes" maxlength="60" autocomplete="off">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 13h4"/>
+          </svg>
+        </div>
+        <div class="char-hint" id="nameCount">0 / 60</div>
+      </div>
+
+      <div class="field">
+        <label>
+          Location
+          <span>required</span>
+        </label>
+        <div class="input-wrap">
+          <input type="text" id="shopLocation" placeholder="e.g. Kilimambogo" maxlength="80" autocomplete="off">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+          </svg>
+        </div>
+        <div class="char-hint" id="locCount">0 / 80</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Live payload preview -->
+      <div class="payload-preview" id="payloadPreview" hidden>
+        <span class="brace">{</span><br>
+        &nbsp;&nbsp;<span class="key">"name"</span>: <span class="val" id="prevName">""</span>,<br>
+        &nbsp;&nbsp;<span class="key">"location"</span>: <span class="val" id="prevLoc">""</span><br>
+        <span class="brace">}</span>
+      </div>
+
+      <button class="submit-btn" id="submitBtn" onclick="handleSubmit()" style="margin-top: 20px;">
+        <div class="spinner" id="spinner"></div>
+        <span class="btn-text">Create Shop</span>
+        <svg class="btn-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const nameInput = document.getElementById('shopName');
+  const locInput  = document.getElementById('shopLocation');
+  const nameCount = document.getElementById('nameCount');
+  const locCount  = document.getElementById('locCount');
+  const prevName  = document.getElementById('prevName');
+  const prevLoc   = document.getElementById('prevLoc');
+  const submitBtn = document.getElementById('submitBtn');
+  const spinner   = document.getElementById('spinner');
+
+  function updateCount(input, counter, max) {
+    const len = input.value.length;
+    counter.textContent = `${len} / ${max}`;
+    counter.classList.toggle('warn', len > max * 0.85);
+  }
+
+  function updatePreview() {
+    const n = nameInput.value || '';
+    const l = locInput.value  || '';
+    prevName.textContent = `"${n}"`;
+    prevLoc.textContent  = `"${l}"`;
+  }
+
+  nameInput.addEventListener('input', () => {
+    updateCount(nameInput, nameCount, 60);
+    updatePreview();
+  });
+
+  locInput.addEventListener('input', () => {
+    updateCount(locInput, locCount, 80);
+    updatePreview();
+  });
+
+  async function handleSubmit() {
+    const name     = nameInput.value.trim();
+    const location = locInput.value.trim();
+
+    if (!name || !location) {
+      Swal.fire({
+        title: 'Missing Fields',
+        html: 'Please fill in both <strong>Shop Name</strong> and <strong>Location</strong> before submitting.',
+        icon: 'warning',
+        confirmButtonText: 'Got it',
+        customClass: {
+          popup: 'swal2-popup',
+          title: 'swal2-title',
+          htmlContainer: 'swal2-html-container',
+          confirmButton: 'swal2-confirm',
+        }
+      });
+      return;
+    }
+
+    const payload = { name, location };
+
+    // Loading state
+    submitBtn.disabled = true;
+    submitBtn.classList.add('loading');
+    spinner.style.display = 'block';
+
+    try {
+      const res = await fetch('/shop/v1/create-shop', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok) {
+        Swal.fire({
+          title: 'Shop Created',
+          html: `<strong style="color:var(--chalk)">${name}</strong> has been registered at <strong style="color:var(--chalk)">${location}</strong> and is now live on the network.`,
+          icon: 'success',
+          confirmButtonText: 'Add Another',
+          showCancelButton: true,
+          cancelButtonText: 'Done',
+          customClass: {
+            popup: 'swal2-popup',
+            title: 'swal2-title',
+            htmlContainer: 'swal2-html-container',
+            confirmButton: 'swal2-confirm',
+            cancelButton: 'swal2-cancel',
+          }
+        }).then(result => {
+          if (result.isConfirmed) {
+            // nameInput.value = '';
+            // locInput.value  = '';
+            // updatePreview();
+            // nameCount.textContent = '0 / 60';
+            // locCount.textContent  = '0 / 80';
+            window.location.href="/dashboard";
+          }
+        });
+      } else {
+        const msg = data.message || data.error || `Server returned ${res.status}`;
+        Swal.fire({
+          title: 'Request Failed',
+          html: `The server responded with an error:<br><code style="color:var(--ember);font-size:13px">${msg}</code>`,
+          icon: 'error',
+          confirmButtonText: 'Try Again',
+          customClass: {
+            popup: 'swal2-popup',
+            title: 'swal2-title',
+            htmlContainer: 'swal2-html-container',
+            confirmButton: 'swal2-confirm',
+          }
+        });
+      }
+
+    } catch (err) {
+      Swal.fire({
+        title: 'Connection Error',
+        html: `Could not reach the server.<br><code style="color:var(--ember);font-size:12px">${err.message}</code>`,
+        icon: 'error',
+        confirmButtonText: 'Retry',
+        customClass: {
+          popup: 'swal2-popup',
+          title: 'swal2-title',
+          htmlContainer: 'swal2-html-container',
+          confirmButton: 'swal2-confirm',
+        }
+      });
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('loading');
+      spinner.style.display = 'none';
+    }
+  }
+
+  // Enter key submits
+  [nameInput, locInput].forEach(el => {
+    el.addEventListener('keydown', e => { if (e.key === 'Enter') handleSubmit(); });
+  });
+</script>
+</body>
+</html>

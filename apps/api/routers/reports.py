@@ -40,6 +40,10 @@ def _resolve_shop_or_403(
     db: Session,
 ) -> Shop:
     shop: Shop | None = db.get(Shop, shop_id)
+    if shop:
+        return shop
+
+    return None
     if shop is None:
         print("Trouble... Shop is None")
         raise HTTPException(

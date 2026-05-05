@@ -315,15 +315,30 @@ async def checkout_session(
                 response_description = stk_initiate["detail"]["ResponseDescription"]
                 mpesa_checkout_request_id = stk_initiate["detail"]["CheckoutRequestID"]
 
-                mpesa_checkout = MpesaCheckout(
-                    session_checkout_id=session_checkout.id,
-                    customer_MSISDN=phone,
-                    mpesa_checkout_request_id=mpesa_checkout_request_id,
-                    transaction_status_enum=MpesaTransactionStatus.PENDING,
+                scoped_checkout = (
+                    db.query(MpesaCheckout)
+                    .filter(MpesaCheckout.session_checkout_id == session_checkout.id)
+                    .first()
                 )
-                db.add(mpesa_checkout)
+                if not scoped_checkout:
+                    scoped_checkout = MpesaCheckout(
+                        session_checkout_id=session_checkout.id,
+                        customer_MSISDN=phone,
+                        mpesa_checkout_request_id=mpesa_checkout_request_id,
+                        transaction_status_enum=MpesaTransactionStatus.PENDING,
+                    )
+                else:
+                    scoped_checkout.customer_MSISDN = phone
+                    scoped_checkout.mpesa_checkout_request_id = (
+                        mpesa_checkout_request_id
+                    )
+                    scoped_checkout.transaction_status_enum = (
+                        MpesaTransactionStatus.PENDING
+                    )
+
+                db.add(scoped_checkout)
                 db.commit()
-                db.refresh(mpesa_checkout)
+                db.refresh(scoped_checkout)
 
                 return {
                     "detail": f"Toolkit Prompt of KES{round(amount)} sent to {phone}. {response_description}",

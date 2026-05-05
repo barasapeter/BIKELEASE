@@ -94,7 +94,7 @@ After=network.target postgresql.service
 User=ubuntu
 WorkingDirectory=$APP_DIR
 EnvironmentFile=$APP_DIR/.env
-ExecStart=$APP_DIR/venv/bin/gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app --bind $BIND_ADDR
+ExecStart=$APP_DIR/venv/bin/gunicorn -w 4 -k uvicorn.workers.UvicornWorker apps.api.main:app --bind $BIND_ADDR
 Restart=always
 RestartSec=3
 

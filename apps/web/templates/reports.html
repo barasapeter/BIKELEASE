@@ -682,9 +682,9 @@ async function apiFetch(path, params = {}) {
   if (!shop) throw new Error('Shop ID is required. Fill it in the sidebar.');
 //   if (!token) throw new Error('Bearer token is required. Fill it in the sidebar.');
 
-  const url = new URL(`/reports/v1${path}`);
-  url.searchParams.set('shop_id', shop);
-  Object.entries(params).forEach(([k, v]) => { if (v != null) url.searchParams.set(k, v); });
+  const url = `/reports/v1${path}`;
+  // url.searchParams.set('shop_id', shop);
+  // Object.entries(params).forEach(([k, v]) => { if (v != null) url.searchParams.set(k, v); });
 
   const res = await fetch(url, {
     // headers: { Authorization: `Bearer ${token}` },
@@ -727,7 +727,7 @@ $('run-btn').addEventListener('click', async () => {
     await runners[activePanel]();
   } finally {
     btn.disabled = false;
-    btn.textContent = '▶ Fetch';
+    btn.textContent = '▶ Execute';
   }
 });
 
